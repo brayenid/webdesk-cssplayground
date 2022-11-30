@@ -128,19 +128,19 @@ onMounted(() => {
           <h3>
             <i class="devicon-html5-plain colored"></i>
           </h3>
-          <textarea spellcheck="false" cols="20" wrap="soft" v-model="htmlCode" class="prism-live language-html line-numbers"></textarea>
+          <textarea placeholder="HTML" spellcheck="false" cols="20" wrap="soft" v-model="htmlCode" class="prism-live language-html line-numbers"></textarea>
         </div>
         <div id="css" class="cssArea">
           <h3>
             <i class="devicon-css3-plain colored"></i>
           </h3>
-          <textarea spellcheck="false" v-model="cssCode" class="prism-live language-css"></textarea>
+          <textarea placeholder="CSS" spellcheck="false" v-model="cssCode" class="prism-live language-css line-numbers"></textarea>
         </div>
         <div id="js" class="jsArea">
           <h3>
             <i class="devicon-javascript-plain colored"></i>
           </h3>
-          <textarea spellcheck="false" cols="10" v-model="jsCode" class="prism-live language-js"></textarea>
+          <textarea placeholder="Javascript" spellcheck="false" cols="10" v-model="jsCode" class="prism-live language-js line-numbers"></textarea>
         </div>
       </div>
       <div class="codeViewer">

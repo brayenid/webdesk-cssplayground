@@ -14,11 +14,16 @@ onMounted(() => {
 <template>
   <header>
     <nav>
-      <ul class="menuList">
-        <li><RouterLink to="/about">About</RouterLink></li>
-        <li><RouterLink to="/about">Attribution</RouterLink></li>
-      </ul>
-      <div class="buttonArea">
+      <div class="titleAndMenu">
+        <a href="/">
+          <h1 class="websdeck">Webs<span>deck</span></h1></a
+        >
+        <ul class="menuList">
+          <li><RouterLink to="/about">About</RouterLink></li>
+          <li><RouterLink to="/attribution">Attribution</RouterLink></li>
+        </ul>
+      </div>
+      <div class="buttonArea" v-if="$route.name !== 'about' && $route.name !== 'attribution'">
         <button data-title="Code Area Toggle (CTRL+0)" id="collapseMenu" class="codeCollapseExpand"><font-awesome-icon icon="fa-solid fa-code" /></button>
         <button data-title="Run Code (CTRL+Enter)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
         <button data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
@@ -36,6 +41,20 @@ nav {
   box-sizing: border-box;
   padding: 0 1rem;
   height: 3rem;
+}
+.websdeck {
+  font-size: 1.5rem;
+  font-family: 'Prompt', sans-serif;
+  font-size: 700;
+  color: #fff;
+}
+.websdeck span {
+  color: #10a19d;
+}
+.titleAndMenu {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
 }
 .menuList {
   display: flex;
