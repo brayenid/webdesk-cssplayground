@@ -5,16 +5,20 @@ import { PrismEditor } from 'vue-prism-editor'
 import 'vue-prism-editor/dist/prismeditor.min.css'
 import { highlight, languages } from 'prismjs/components/prism-core'
 import 'prismjs/components/prism-clike'
+import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-javascript'
+import 'prismjs/components/prism-markup'
+
+// import 'prismjs/components/prism-cshtml'
 import 'prismjs/themes/prism-tomorrow.css'
 
 const htmlCode = ref('')
 const cssCode = ref('')
 const jsCode = ref('')
 
-const highlighter = (code) => {
-  return highlight(code, languages.js) // languages.<insert language> to return html with markup
-}
+const html = (code) => highlight(code, languages.html)
+const css = (code) => highlight(code, languages.css)
+const javascript = (code) => highlight(code, languages.js)
 
 onMounted(() => {
   let codeAreaVerticalSplit
@@ -140,19 +144,19 @@ onMounted(() => {
           <h3>
             <i class="devicon-html5-plain colored"></i>
           </h3>
-          <prism-editor class="my-editor" v-model="htmlCode" :highlight="highlighter" line-numbers></prism-editor>
+          <PrismEditor class="my-editor" v-model="htmlCode" :highlight="html" line-numbers></PrismEditor>
         </div>
         <div id="css" class="cssArea">
           <h3>
             <i class="devicon-css3-plain colored"></i>
           </h3>
-          <textarea placeholder="CSS" spellcheck="false" v-model="cssCode" class="prism-live language-css line-numbers"></textarea>
+          <PrismEditor class="my-editor" v-model="cssCode" :highlight="css" line-numbers></PrismEditor>
         </div>
         <div id="js" class="jsArea">
           <h3>
             <i class="devicon-javascript-plain colored"></i>
           </h3>
-          <textarea placeholder="Javascript" spellcheck="false" cols="10" v-model="jsCode" class="prism-live language-js line-numbers"></textarea>
+          <PrismEditor class="my-editor" v-model="jsCode" :highlight="javascript" line-numbers></PrismEditor>
         </div>
       </div>
       <div class="codeViewer">
@@ -228,9 +232,8 @@ iframe {
   line-height: 1.5;
   padding: 5px;
 }
-
 /* optional class for removing the outline */
 .prism-editor__textarea:focus {
-  outline: none;
+  outline: none !important;
 }
 </style>
