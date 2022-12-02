@@ -1,9 +1,21 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import Split from 'split.js'
+import { PrismEditor } from 'vue-prism-editor'
+import 'vue-prism-editor/dist/prismeditor.min.css'
+import { highlight, languages } from 'prismjs/components/prism-core'
+import 'prismjs/components/prism-clike'
+import 'prismjs/components/prism-javascript'
+import 'prismjs/themes/prism-tomorrow.css'
+
 const htmlCode = ref('')
 const cssCode = ref('')
 const jsCode = ref('')
+
+const highlighter = (code) => {
+  return highlight(code, languages.js) // languages.<insert language> to return html with markup
+}
+
 onMounted(() => {
   let codeAreaVerticalSplit
   codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
@@ -128,7 +140,7 @@ onMounted(() => {
           <h3>
             <i class="devicon-html5-plain colored"></i>
           </h3>
-          <textarea placeholder="HTML" spellcheck="false" cols="20" wrap="soft" v-model="htmlCode" class="prism-live language-html line-numbers"></textarea>
+          <prism-editor class="my-editor" v-model="htmlCode" :highlight="highlighter" line-numbers></prism-editor>
         </div>
         <div id="css" class="cssArea">
           <h3>
@@ -202,5 +214,23 @@ iframe {
 }
 .codeAreaOnHorizontalFlex {
   flex-direction: column !important;
+}
+
+/* required class */
+.my-editor {
+  /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
+  background: #2d2d2d;
+  color: #ccc;
+
+  /* you must provide font-family font-size line-height. Example: */
+  font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 5px;
+}
+
+/* optional class for removing the outline */
+.prism-editor__textarea:focus {
+  outline: none;
 }
 </style>

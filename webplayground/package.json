@@ -13,9 +13,12 @@
     "@fortawesome/free-regular-svg-icons": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/vue-fontawesome": "^3.0.2",
+    "firebase": "^9.14.0",
+    "prismjs": "^1.29.0",
     "split.js": "^1.6.5",
     "tippy.js": "^6.3.7",
     "vue": "^3.2.45",
+    "vue-prism-editor": "^2.0.0-alpha.2",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {

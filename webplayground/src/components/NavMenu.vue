@@ -1,7 +1,9 @@
 <script setup>
+// import { getAuth, GoogleAuthProvider, signInWithPopup } from '@firebase/auth'
 import { RouterLink } from 'vue-router'
 import tippy from 'tippy.js'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+// const auth = getAuth()
 onMounted(() => {
   const buttons = document.querySelectorAll('button')
   buttons.forEach((button) => {
@@ -10,13 +12,21 @@ onMounted(() => {
     })
   })
 })
+// const provider = new GoogleAuthProvider()
+// const signInGoogle = () => {
+//   signInWithPopup(auth, provider)
+//     .then((res) => {
+//       console.log('Login google success')
+//     })
+//     .catch((err) => console.log(err))
+// }
 </script>
 <template>
   <header>
     <nav>
       <div class="titleAndMenu">
-        <a href="/">
-          <h1 class="websdeck">Webs<span>deck</span></h1></a
+        <RouterLink to="/">
+          <h1 class="websdeck">Webs<span>deck</span></h1></RouterLink
         >
         <ul class="menuList">
           <li><RouterLink to="/about">About</RouterLink></li>
@@ -28,6 +38,7 @@ onMounted(() => {
         <button data-title="Run Code (CTRL+Enter)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
         <button data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
         <button data-title="Change View Horizontal" class="codeViewHorizontal"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button>
+        <!-- <button data-title="Login with Google" class="codeViewHorizontal" @click="signInGoogle"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button> -->
       </div>
     </nav>
   </header>
