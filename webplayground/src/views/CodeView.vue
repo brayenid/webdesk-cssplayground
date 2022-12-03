@@ -2,15 +2,22 @@
 import { onMounted, ref } from 'vue'
 import Split from 'split.js'
 import { PrismEditor } from 'vue-prism-editor'
-import 'vue-prism-editor/dist/prismeditor.min.css'
 import { highlight, languages } from 'prismjs/components/prism-core'
+import { customAlphabet } from 'nanoid'
+import { useAuthState } from '../stores/auth'
+import { useRouter, useRoute } from 'vue-router'
+import { collection, getDocs } from '@firebase/firestore'
+import { db } from '../firebase'
+
+import 'vue-prism-editor/dist/prismeditor.min.css'
 import 'prismjs/components/prism-clike'
 import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-markup'
-
-// import 'prismjs/components/prism-cshtml'
 import 'prismjs/themes/prism-tomorrow.css'
+
+const route = useRoute()
+const router = useRouter()
 
 const htmlCode = ref('')
 const cssCode = ref('')
@@ -20,7 +27,31 @@ const html = (code) => highlight(code, languages.html)
 const css = (code) => highlight(code, languages.css)
 const javascript = (code) => highlight(code, languages.js)
 
-onMounted(() => {
+const userName = useAuthState().userName
+const getMonth = new Date().getMonth()
+const getYear = new Date().getFullYear()
+const nanoId = customAlphabet('1234567890abcdef', 5)
+const generateId = `${nanoId()}${getMonth}${getYear}`
+
+let project
+onMounted(async () => {
+  const projectId = route.params.id ? route.params.id : generateId
+
+  const filterProject = []
+  const projects = await getDocs(collection(db, 'showcase'))
+  projects.forEach((doc) => {
+    filterProject.push(doc.data())
+  })
+  const getProject = filterProject.filter((data) => data.projectId === projectId)
+  project = getProject
+
+  if (route.params.id && project.length > 0) {
+    const { html, css, js } = project[0].code
+    htmlCode.value = html
+    cssCode.value = css
+    jsCode.value = js
+  }
+
   let codeAreaVerticalSplit
   codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
     minSize: [0, 0, 0],
@@ -42,12 +73,27 @@ onMounted(() => {
   const codePaneButtonHorizontal = document.querySelector('.codeViewHorizontal')
   const codePane = document.querySelector('.codePane')
   const codeArea = document.querySelector('.codeArea')
+  const projectTitle = document.querySelector('.projectTitle')
 
   const codeRunner = () => {
     viewer.open()
     viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
     viewer.close()
   }
+  const codeSaver = () => {
+    const dataProject = {
+      projectId: projectId,
+      projectTitle: projectTitle.value,
+      projectAuthor: userName,
+      code: {
+        html: htmlCode.value,
+        css: cssCode.value,
+        js: jsCode.value
+      }
+    }
+    console.log(dataProject)
+  }
+
   const codeAreaCollapse = () => {
     const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
     const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
@@ -128,10 +174,23 @@ onMounted(() => {
     if (e.key === 'Enter' && e.ctrlKey) {
       codeRunner()
     }
-  })
-  document.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === '0') {
       codeAreaCollapse()
+    }
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault()
+      if (projectTitle.value) {
+        if (htmlCode.value || cssCode.value || jsCode.value) {
+          codeSaver()
+          alert('Saved')
+          if (route.params.id !== projectId) router.push(`/code/${projectId}`)
+        } else {
+          alert('Codes are empty, make at least on line code.')
+        }
+      } else {
+        alert('Title is empty')
+        return
+      }
     }
   })
 })
@@ -144,19 +203,19 @@ onMounted(() => {
           <h3>
             <i class="devicon-html5-plain colored"></i>
           </h3>
-          <PrismEditor class="my-editor" v-model="htmlCode" :highlight="html" line-numbers></PrismEditor>
+          <PrismEditor class="editorField" v-model="htmlCode" :highlight="html" line-numbers></PrismEditor>
         </div>
         <div id="css" class="cssArea">
           <h3>
             <i class="devicon-css3-plain colored"></i>
           </h3>
-          <PrismEditor class="my-editor" v-model="cssCode" :highlight="css" line-numbers></PrismEditor>
+          <PrismEditor class="editorField" v-model="cssCode" :highlight="css" line-numbers></PrismEditor>
         </div>
         <div id="js" class="jsArea">
           <h3>
             <i class="devicon-javascript-plain colored"></i>
           </h3>
-          <PrismEditor class="my-editor" v-model="jsCode" :highlight="javascript" line-numbers></PrismEditor>
+          <PrismEditor class="editorField" v-model="jsCode" :highlight="javascript" line-numbers></PrismEditor>
         </div>
       </div>
       <div class="codeViewer">
@@ -203,9 +262,11 @@ iframe {
   background-color: #222;
   color: #fff;
   overflow-y: auto;
-  padding: 3rem 1rem 0;
+  padding: 3rem 1rem 1rem 0.5rem;
   box-sizing: border-box;
   border-radius: 0.3rem;
+  width: 100%;
+  overflow: hidden;
 }
 .codePaneChangeViewVertical {
   flex-direction: column-reverse;
@@ -221,19 +282,12 @@ iframe {
 }
 
 /* required class */
-.my-editor {
-  /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
+.editorField {
   background: #2d2d2d;
   color: #ccc;
-
-  /* you must provide font-family font-size line-height. Example: */
   font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
   font-size: 14px;
   line-height: 1.5;
   padding: 5px;
-}
-/* optional class for removing the outline */
-.prism-editor__textarea:focus {
-  outline: none !important;
 }
 </style>

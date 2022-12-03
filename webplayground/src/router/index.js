@@ -4,60 +4,106 @@ import HomeView from '../views/HomeView.vue'
 import CodeView from '../views/CodeView.vue'
 import AboutView from '../views/AboutView.vue'
 import AttributionView from '../views/AttributionView.vue'
+import ErrorView from '../views/ErrorView.vue'
+
+import { db } from '../firebase'
+import { getDocs, collection } from 'firebase/firestore'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: HomeView
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: ErrorView,
+      meta: {
+        title: 404
+      }
     },
     {
-      path: `/:id`,
+      path: '/',
+      name: 'home',
+      component: HomeView,
+      meta: {
+        title: 'Websdeck'
+      }
+    },
+    {
+      path: `/code`,
       name: 'code',
       component: CodeView,
       meta: {
-        requiresAuth: true
+        requiresAuth: true,
+        title: 'Write Codes'
+      }
+    },
+    {
+      path: `/code/:id`,
+      name: 'codeedit',
+      component: CodeView,
+      meta: {
+        requiresAuth: true,
+        title: 'Write Codes'
+      },
+      beforeEnter: async (to, from, next) => {
+        let filterProjects = []
+        const projects = await getDocs(collection(db, 'showcase'))
+        projects.forEach((doc) => {
+          filterProjects.push(doc.data())
+        })
+        const getProject = filterProjects.filter((data) => data.projectId === to.params.id)
+        if (getProject.length > 0) {
+          next()
+        } else {
+          next('/404')
+        }
       }
     },
     {
       path: '/about',
       name: 'about',
-      component: AboutView
+      component: AboutView,
+      meta: {
+        title: 'About Websdeck'
+      }
     },
     {
       path: '/attribution',
       name: 'attribution',
-      component: AttributionView
+      component: AttributionView,
+      meta: {
+        title: 'Attribution'
+      }
     }
   ]
 })
 
-// const getCurrentUser = () => {
-//   return new Promise((resolve, reject) => {
-//     const removeListener = onAuthStateChanged(
-//       getAuth(),
-//       (user) => {
-//         removeListener()
-//         resolve(user)
-//       },
-//       reject
-//     )
-//   })
-// }
+const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const removeListener = onAuthStateChanged(
+      getAuth(),
+      (user) => {
+        removeListener()
+        resolve(user)
+      },
+      reject
+    )
+  })
+}
 
-// router.beforeEach(async (to, from, next) => {
-//   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-//   if (requiresAuth) {
-//     if (await getCurrentUser()) {
-//       next()
-//     } else {
-//       alert('you dont have access')
-//       next('/')
-//     }
-//   } else {
-//     next()
-//   }
-// })
+router.beforeEach(async (to, from, next) => {
+  document.title = to.meta.title
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+  if (requiresAuth) {
+    if (await getCurrentUser()) {
+      next()
+    } else {
+      alert('you dont have access')
+      next('/')
+    }
+  } else {
+    next()
+  }
+})
 
 export default router
