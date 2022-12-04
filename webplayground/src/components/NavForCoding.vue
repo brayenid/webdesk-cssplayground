@@ -1,8 +1,8 @@
 <script setup>
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from '@firebase/auth'
-import { RouterLink, useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import tippy from 'tippy.js'
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useAuthState } from '../stores/auth'
 const authenticated = useAuthState()
 const router = useRouter()
@@ -45,12 +45,8 @@ const signout = () => {
         <a href="/">
           <h1 class="websdeck">Webs<span>deck</span></h1></a
         >
-        <ul class="menuList" v-if="$route.name !== 'code' || $route.name !== 'codeedit'">
-          <li><RouterLink to="/about">About</RouterLink></li>
-          <li><RouterLink to="/attribution">Attribution</RouterLink></li>
-        </ul>
       </div>
-      <div class="buttonArea" v-if="$route.name === 'code' || $route.name === 'codeedit'">
+      <div class="buttonArea">
         <button title="CTRL+0" data-title="Code Area Toggle (CTRL+0)" id="collapseMenu" class="codeCollapseExpand"><font-awesome-icon icon="fa-solid fa-code" /></button>
         <button title="CTRL+Enter" data-title="Run Code (CTRL+Enter)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
         <button data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
@@ -86,14 +82,6 @@ nav {
   display: flex;
   gap: 2rem;
   align-items: center;
-}
-.menuList {
-  display: flex;
-  gap: 2rem;
-}
-.menuList a {
-  text-decoration: none;
-  color: #fff;
 }
 .buttonArea {
   display: flex;

@@ -4,7 +4,8 @@ export const useAuthState = defineStore('auth', {
   state: () => {
     return {
       isLoggedIn: false,
-      userName: 'guess'
+      userName: 'guess',
+      userId: null
     }
   }
 })

@@ -6,8 +6,9 @@ import { highlight, languages } from 'prismjs/components/prism-core'
 import { customAlphabet } from 'nanoid'
 import { useAuthState } from '../stores/auth'
 import { useRouter, useRoute } from 'vue-router'
-import { collection, getDocs } from '@firebase/firestore'
+import { collection, getDocs, doc, setDoc } from '@firebase/firestore'
 import { db } from '../firebase'
+import NavMenuForCoding from '../components/NavForCoding.vue'
 
 import 'vue-prism-editor/dist/prismeditor.min.css'
 import 'prismjs/components/prism-clike'
@@ -28,6 +29,7 @@ const css = (code) => highlight(code, languages.css)
 const javascript = (code) => highlight(code, languages.js)
 
 const userName = useAuthState().userName
+const userId = useAuthState().userId
 const getMonth = new Date().getMonth()
 const getYear = new Date().getFullYear()
 const nanoId = customAlphabet('1234567890abcdef', 5)
@@ -36,6 +38,7 @@ const generateId = `${nanoId()}${getMonth}${getYear}`
 let project
 onMounted(async () => {
   const projectId = route.params.id ? route.params.id : generateId
+  const projectTitleEl = document.querySelector('.projectTitle')
 
   const filterProject = []
   const projects = await getDocs(collection(db, 'showcase'))
@@ -46,10 +49,12 @@ onMounted(async () => {
   project = getProject
 
   if (route.params.id && project.length > 0) {
+    const { projectTitle } = project[0]
     const { html, css, js } = project[0].code
     htmlCode.value = html
     cssCode.value = css
     jsCode.value = js
+    projectTitleEl.value = projectTitle
   }
 
   let codeAreaVerticalSplit
@@ -80,18 +85,59 @@ onMounted(async () => {
     viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
     viewer.close()
   }
+  const saveToDb = async (collection, title, code) => {
+    await setDoc(doc(db, collection, title), code)
+  }
+
+  //This codeSaver function is holding Save and Update function, I wish i could refactor this one day.
   const codeSaver = () => {
     const dataProject = {
       projectId: projectId,
       projectTitle: projectTitle.value,
       projectAuthor: userName,
+      projectAuthorId: userId,
       code: {
         html: htmlCode.value,
         css: cssCode.value,
         js: jsCode.value
       }
     }
-    console.log(dataProject)
+    if (projectTitle.value) {
+      if (route.params.id) {
+        const projectAuthorId = project[0].projectAuthorId
+        if (projectAuthorId === userId) {
+          if (htmlCode.value || cssCode.value || jsCode.value) {
+            saveToDb('showcase', projectId, dataProject)
+            alert('Saved')
+            if (route.params.id !== projectId) {
+              setTimeout(() => {
+                router.push(`/code/${projectId}`)
+              }, 500)
+            }
+          } else {
+            alert('Codes are empty, make at least on line code.')
+          }
+        } else {
+          alert('This is someone else project, but you can fork it.')
+        }
+      } else {
+        if (htmlCode.value || cssCode.value || jsCode.value) {
+          saveToDb('showcase', projectId, dataProject)
+          console.log(dataProject)
+          alert('Saved')
+          if (route.params.id !== projectId) {
+            setTimeout(() => {
+              router.push(`/code/${projectId}`)
+            }, 500)
+          }
+        } else {
+          alert('Codes are empty, make at least on line code.')
+        }
+      }
+    } else {
+      alert('Title is empty')
+      return
+    }
   }
 
   const codeAreaCollapse = () => {
@@ -162,7 +208,6 @@ onMounted(async () => {
     codePane.classList.toggle('codePaneChangeViewHorizontal')
     codeArea.classList.add('codeAreaOnHorizontalFlex')
   }
-
   //Button listener
   collapseMenu.addEventListener('click', codeAreaCollapse)
   runner.addEventListener('click', codeRunner)
@@ -179,23 +224,17 @@ onMounted(async () => {
     }
     if (e.ctrlKey && e.key === 's') {
       e.preventDefault()
-      if (projectTitle.value) {
-        if (htmlCode.value || cssCode.value || jsCode.value) {
-          codeSaver()
-          alert('Saved')
-          if (route.params.id !== projectId) router.push(`/code/${projectId}`)
-        } else {
-          alert('Codes are empty, make at least on line code.')
-        }
-      } else {
-        alert('Title is empty')
-        return
-      }
+      codeSaver()
     }
   })
+  //after CodeView opened
+  setTimeout(() => {
+    codeRunner()
+  }, 100)
 })
 </script>
 <template>
+  <NavMenuForCoding />
   <main>
     <div class="codePane">
       <div class="codeArea split">
@@ -280,8 +319,6 @@ iframe {
 .codeAreaOnHorizontalFlex {
   flex-direction: column !important;
 }
-
-/* required class */
 .editorField {
   background: #2d2d2d;
   color: #ccc;

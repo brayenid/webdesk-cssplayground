@@ -1,5 +1,6 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
+import IndexView from '../views/IndexView.vue'
 import HomeView from '../views/HomeView.vue'
 import CodeView from '../views/CodeView.vue'
 import AboutView from '../views/AboutView.vue'
@@ -22,14 +23,40 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: 'home',
-      component: HomeView,
+      name: 'index',
+      component: IndexView,
       meta: {
         title: 'Websdeck'
-      }
+      },
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: HomeView,
+          meta: {
+            title: 'Websdeck'
+          }
+        },
+        {
+          path: 'about',
+          name: 'about',
+          component: AboutView,
+          meta: {
+            title: 'About Websdeck'
+          }
+        },
+        {
+          path: 'attribution',
+          name: 'attribution',
+          component: AttributionView,
+          meta: {
+            title: 'Attribution'
+          }
+        }
+      ]
     },
     {
-      path: `/code`,
+      path: '/code',
       name: 'code',
       component: CodeView,
       meta: {
@@ -38,7 +65,7 @@ const router = createRouter({
       }
     },
     {
-      path: `/code/:id`,
+      path: '/code/:id',
       name: 'codeedit',
       component: CodeView,
       meta: {
@@ -57,22 +84,6 @@ const router = createRouter({
         } else {
           next('/404')
         }
-      }
-    },
-    {
-      path: '/about',
-      name: 'about',
-      component: AboutView,
-      meta: {
-        title: 'About Websdeck'
-      }
-    },
-    {
-      path: '/attribution',
-      name: 'attribution',
-      component: AttributionView,
-      meta: {
-        title: 'Attribution'
       }
     }
   ]

@@ -30,7 +30,7 @@ onMounted(async () => {
     <h2>Showcase</h2>
     <div class="project" v-for="project in showcase">
       <h3>
-        <a :href="`/code/${project.id}`">{{ project.title }}</a>
+        <RouterLink :to="`/code/${project.id}`">{{ project.title }} - {{ project.author }}</RouterLink>
       </h3>
     </div>
     <div class="writeCode">
@@ -39,6 +39,12 @@ onMounted(async () => {
   </main>
 </template>
 <style scoped>
+a {
+  color: #fff;
+}
+a:focus {
+  color: #fff;
+}
 main {
   background-color: #333;
   max-width: 800px;
@@ -56,19 +62,22 @@ h2 {
   margin-bottom: 1.4rem;
   font-weight: 700;
 }
-.link {
-  color: #fff;
-  padding: 0.5rem 1.5rem;
-  background-color: rgb(47, 146, 113);
-  border-radius: 0.2rem;
-  display: block;
+h3 {
+  text-align: left;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.5);
+  padding: 1rem 0;
 }
 .project {
   min-height: 30px;
   width: 100%;
-  background-color: blanchedalmond;
 }
 .writeCode {
   margin-top: 1rem;
+}
+.writeCode a {
+  background-color: rgb(23, 143, 143);
+  padding: 0.5rem 1.5rem;
+  color: #fff;
+  border-radius: 0.3rem;
 }
 </style>
