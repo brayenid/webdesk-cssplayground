@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { collection, getDocs } from '@firebase/firestore'
 import { onMounted } from 'vue'
 import { db } from '../firebase'
+import { useAuthState } from '../stores/auth'
 
 const showcase = ref([])
 
@@ -22,6 +23,7 @@ onMounted(async () => {
     }
     projects.push(project)
   })
+  console.log(useAuthState().userName)
   showcase.value = projects
 })
 </script>
@@ -30,7 +32,7 @@ onMounted(async () => {
     <h2>Showcase</h2>
     <div class="project" v-for="project in showcase">
       <h3>
-        <a :href="`/code/${project.id}`">{{ project.title }}</a>
+        <a :href="`/code/${project.id}`">{{ project.title }} - {{ project.author }}</a>
       </h3>
     </div>
     <div class="writeCode">
@@ -39,13 +41,16 @@ onMounted(async () => {
   </main>
 </template>
 <style scoped>
+a {
+  color: #fff;
+}
+a:focus {
+  color: #fff;
+}
 main {
-  background-color: #333;
-  max-width: 800px;
-  margin: 1rem auto 0;
+  background-color: #222;
   padding: 1rem;
   box-sizing: border-box;
-  border-radius: 0.5rem;
   box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
   text-align: center;
 }
@@ -56,19 +61,30 @@ h2 {
   margin-bottom: 1.4rem;
   font-weight: 700;
 }
-.link {
-  color: #fff;
-  padding: 0.5rem 1.5rem;
-  background-color: rgb(47, 146, 113);
-  border-radius: 0.2rem;
-  display: block;
+h3 {
+  text-align: left;
+  border-bottom: 1px dotted rgba(0, 0, 0, 0.5);
+  padding: 1rem 0;
 }
 .project {
   min-height: 30px;
   width: 100%;
-  background-color: blanchedalmond;
 }
 .writeCode {
-  margin-top: 1rem;
+  margin: 1rem auto 0;
+  background-color: rgb(29, 187, 187);
+  width: max-content;
+  padding: 0.6rem 0;
+  box-sizing: border-box;
+  border-radius: 0.3rem;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+}
+.writeCode:hover {
+  background-color: rgb(26, 160, 160);
+}
+.writeCode a {
+  padding: 0.5rem 1.5rem;
+  color: #fff;
+  border-radius: 0.3rem;
 }
 </style>

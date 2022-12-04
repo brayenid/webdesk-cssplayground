@@ -19,7 +19,7 @@ a {
   color: #fff;
 }
 .container {
-  background-color: #111;
+  background-color: #333;
   padding: 3rem;
 }
 .attribution {
