@@ -5,11 +5,10 @@ import { PrismEditor } from 'vue-prism-editor'
 import { highlight, languages } from 'prismjs/components/prism-core'
 import { customAlphabet } from 'nanoid'
 import { useRoute } from 'vue-router'
-import { doc, setDoc } from '@firebase/firestore'
+import { doc, getDoc, setDoc, deleteDoc } from '@firebase/firestore'
 import { db } from '../firebase'
 import NavMenuForCoding from '../components/NavForCoding.vue'
 import { useAuthState } from '../stores/auth'
-import { storeToRefs } from 'pinia'
 
 import 'vue-prism-editor/dist/prismeditor.min.css'
 import 'prismjs/components/prism-clike'
@@ -17,6 +16,7 @@ import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-markup'
 import 'prismjs/themes/prism-tomorrow.css'
+import { storeToRefs } from 'pinia'
 
 const route = useRoute()
 
@@ -29,13 +29,28 @@ const css = (code) => highlight(code, languages.css)
 const javascript = (code) => highlight(code, languages.js)
 
 let project
-onMounted(() => {
+onMounted(async () => {
+  const docRef = doc(db, 'showcase', route.params.id)
+  const docSnap = await getDoc(docRef)
+  const projectTitleEl = document.querySelector('.projectTitle')
   const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
   const getMonth = new Date().getMonth()
   const getYear = new Date().getFullYear()
   const nanoId = customAlphabet('1234567890abcdef', 5)
   const generateId = `${nanoId()}${getMonth}${getYear}`
   const projectId = route.params.id ? route.params.id : generateId
+
+  if (docSnap.exists()) {
+    project = docSnap.data()
+    const { projectTitle } = project
+    const { html, css, js } = project.code
+    htmlCode.value = html
+    cssCode.value = css
+    jsCode.value = js
+    projectTitleEl.value = projectTitle
+  } else {
+    console.log('No such document!')
+  }
 
   let codeAreaVerticalSplit
   codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
@@ -60,6 +75,7 @@ onMounted(() => {
   const codeArea = document.querySelector('.codeArea')
   const projectTitle = document.querySelector('.projectTitle')
   const saveButton = document.querySelector('.saveProject')
+  const deleteButton = document.querySelector('.deleteProject')
 
   const codeRunner = () => {
     viewer.open()
@@ -87,14 +103,22 @@ onMounted(() => {
       }
     }
     if (isLoggedIn.value) {
+      console.log(isLoggedIn.value)
       if (projectTitle.value) {
-        if (htmlCode.value || cssCode.value || jsCode.value) {
-          saveToDb('showcase', projectId, dataProject).then(() => {
-            alert('Saved')
-            location.replace(`/code/${projectId}`)
-          })
+        const projectAuthorId = project.projectAuthorId
+        if (projectAuthorId === userId.value) {
+          if (htmlCode.value || cssCode.value || jsCode.value) {
+            saveToDb('showcase', projectId, dataProject).then(() => {
+              alert('Saved')
+              if (route.params.id !== projectId) {
+                location.replace(`/code/${projectId}`)
+              }
+            })
+          } else {
+            alert('Codes are empty, make at least on line code.')
+          }
         } else {
-          alert('Codes are empty, make at least on line code.')
+          alert('This is someone else project, but you can fork it.')
         }
       } else {
         alert('Title is empty')
@@ -102,6 +126,22 @@ onMounted(() => {
       }
     } else {
       alert('To save your progress, please login.')
+    }
+  }
+  const codeDelete = async () => {
+    const isDelete = confirm('Delete?')
+    if (isDelete) {
+      if (userId.value === project.projectAuthorId) {
+        await deleteDoc(doc(db, 'showcase', route.params.id))
+          .then(() => {
+            location.replace('/')
+          })
+          .catch((err) => {
+            console.log(`Delete failed! : ${err}`)
+          })
+      } else {
+        alert(`You can't delete this project.`)
+      }
     }
   }
 
@@ -180,6 +220,7 @@ onMounted(() => {
   codePaneButtonVertical.addEventListener('click', changeViewVertical)
   codePaneButtonHorizontal.addEventListener('click', changeViewHorizontal)
   saveButton.addEventListener('click', codeSaver)
+  deleteButton.addEventListener('click', codeDelete)
 
   //Key listener
   document.addEventListener('keydown', (e) => {

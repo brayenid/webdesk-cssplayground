@@ -17,13 +17,12 @@ a {
 }
 body {
   font-family: 'Rubik', sans-serif;
-  background-color: #111;
+  background-color: #444;
 }
 button {
   font-family: 'Rubik', sans-serif;
 }
 .gutter {
-  background-color: #111;
   background-repeat: no-repeat;
   background-position: 50%;
 }
@@ -34,4 +33,8 @@ button {
 .gutter.gutter-vertical {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
   cursor: row-resize;
+}
+.prism-editor__textarea:focus-visible {
+  outline: none;
+  border: none;
 }
