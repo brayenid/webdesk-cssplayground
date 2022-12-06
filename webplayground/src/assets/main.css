@@ -17,13 +17,12 @@ a {
 }
 body {
   font-family: 'Rubik', sans-serif;
-  background-color: #111;
+  background-color: #444;
 }
 button {
   font-family: 'Rubik', sans-serif;
 }
 .gutter {
-  background-color: #111;
   background-repeat: no-repeat;
   background-position: 50%;
 }

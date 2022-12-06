@@ -4,9 +4,14 @@ import { onMounted } from 'vue'
 import GoogleLogin from './GoogleLogin.vue'
 onMounted(() => {
   const signInButton = document.querySelector('.googleSignIn')
-  tippy(signInButton, {
-    content: signInButton.dataset.title
-  })
+  const writeButton = document.querySelector('.link')
+  const tippyInit = (element, dataset) => {
+    tippy(element, {
+      content: dataset
+    })
+  }
+  tippyInit(signInButton, signInButton.dataset.title)
+  tippyInit(writeButton, writeButton.dataset.title)
 })
 </script>
 <template>
@@ -21,7 +26,12 @@ onMounted(() => {
           <li><RouterLink to="/attribution">Attribution</RouterLink></li>
         </ul>
       </div>
-      <GoogleLogin />
+      <div class="writeAndAccount">
+        <div class="writeCode">
+          <a class="link" data-title="Write code" href="/code"><font-awesome-icon icon="fa-solid fa-pen" /></a>
+        </div>
+        <GoogleLogin />
+      </div>
     </nav>
   </header>
 </template>
@@ -33,7 +43,7 @@ nav {
   align-items: center;
   box-sizing: border-box;
   padding: 0 1rem;
-  height: 3rem;
+  height: 4rem;
 }
 .websdeck {
   font-size: 1.5rem;
@@ -65,11 +75,25 @@ button {
   cursor: pointer;
   border-radius: 0.2rem;
 }
+.writeAndAccount {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
 .googleSignIn {
   background-color: antiquewhite;
   color: #9c254d;
 }
 .signOut {
   background-color: rgb(208, 46, 46);
+}
+.writeCode a {
+  padding: 0.5rem 1rem;
+  color: #eee;
+  border-radius: 0.3rem;
+  border: 1px solid #333;
+}
+.writeCode a:hover {
+  color: #fff;
 }
 </style>

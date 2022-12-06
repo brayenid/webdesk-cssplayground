@@ -3,8 +3,8 @@
     <div class="about">
       <h1>Hello World!</h1>
       <article>
-        Welcome to Websdeck. I just wanted to create something with my text editor, so I created Websdeck, a CSS Playground. Websdeck is a simple project inspired by CSSDeck but in a lighter version. You will only find HTML, CSS, Javascript
-        fields and a results panel. But so far, Websdeck is reliable enough to just play with CSS and JS.
+        Welcome to Websdeck. I just wanted to create something with my text editor, so I created Websdeck, a CSS Playground. Websdeck is a low-budget project inspired by CSSDeck but in a lighter version. You will only find HTML, CSS,
+        Javascript fields and a results panel. But so far, Websdeck is reliable enough to just play with CSS and JS.
       </article>
       <div class="socials">
         <ul>
@@ -27,7 +27,7 @@ a {
   color: #fff;
 }
 .container {
-  background-color: #333;
+  background-color: #111;
   padding: 3rem;
 }
 .about {
@@ -35,8 +35,8 @@ a {
   margin: auto;
   color: #fff;
   font-weight: lighter;
-  font-size: 1.5rem;
-  line-height: 2rem;
+  font-size: 1.2rem;
+  line-height: 2.4rem;
 }
 .about h1 {
   font-weight: bold;
@@ -47,9 +47,12 @@ a {
 .socials {
   margin: 3rem 0;
 }
+.socials a {
+  font-size: 1.5rem;
+}
 .socials ul {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   flex-direction: row-reverse;
 }
 </style>

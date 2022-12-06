@@ -2,6 +2,7 @@
 import tippy from 'tippy.js'
 import { onMounted } from 'vue'
 import GoogleLogin from './GoogleLogin.vue'
+import { useRoute } from 'vue-router'
 onMounted(() => {
   const buttons = document.querySelectorAll('button')
   buttons.forEach((button) => {
@@ -10,6 +11,7 @@ onMounted(() => {
     })
   })
 })
+const route = useRoute()
 </script>
 <template>
   <header>
@@ -26,6 +28,7 @@ onMounted(() => {
         <button data-title="Change View Horizontal" class="codeViewHorizontal"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button>
         <input type="text" class="projectTitle" placeholder="Title" />
         <button data-title="Save" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
+        <button v-show="route.params.id" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
       </div>
       <GoogleLogin />
     </nav>
@@ -57,35 +60,19 @@ nav {
 }
 .buttonArea {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.7rem;
 }
 button {
-  border: none;
+  border: 1px solid #333;
   outline: none;
-  color: #fff;
+  color: #aaa;
   padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 0.2rem;
+  background-color: transparent;
 }
-.codeCollapseExpand {
-  background-color: #2b3a55;
-}
-.codeCollapseExpand:active {
-  background-color: #212d42;
-}
-.codeRunner {
-  background-color: #10a19d;
-}
-.codeRunner:active {
-  background-color: #0d8480;
-}
-.codeViewVertical,
-.codeViewHorizontal {
-  background-color: #9c254d;
-}
-.codeViewVertical:active,
-.codeViewHorizontal:active {
-  background-color: #892244;
+button:hover {
+  color: #fff;
 }
 .googleSignIn {
   background-color: antiquewhite;
@@ -94,26 +81,15 @@ button {
 .signOut {
   background-color: rgb(208, 46, 46);
 }
-.saveProject {
-  background-color: #415f97;
-  color: #fff;
-}
-.saveProject:active {
-  background-color: #364f7c;
-  color: #fff;
-}
 .projectTitle {
   width: 140px;
-  background-color: #444;
+  background-color: transparent;
   display: flex;
   align-items: center;
   padding: 0.3rem;
   border: none;
-  border-radius: 0.2rem;
+  border-bottom: 1px solid #333;
   color: #fff;
-}
-.projectTitle:focus {
   outline: none;
-  background-color: #555;
 }
 </style>

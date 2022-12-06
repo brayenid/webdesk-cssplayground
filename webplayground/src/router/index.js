@@ -3,12 +3,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import IndexView from '../views/IndexView.vue'
 import HomeView from '../views/HomeView.vue'
 import CodeView from '../views/CodeView.vue'
+import CodeViewWithParams from '../views/CodeViewWithParams.vue'
 import AboutView from '../views/AboutView.vue'
 import AttributionView from '../views/AttributionView.vue'
 import ErrorView from '../views/ErrorView.vue'
 
 import { db } from '../firebase'
-import { getDocs, collection } from 'firebase/firestore'
+import { getDoc, doc } from 'firebase/firestore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -60,26 +61,22 @@ const router = createRouter({
       name: 'code',
       component: CodeView,
       meta: {
-        requiresAuth: true,
+        // requiresAuth: true,
         title: 'Write Codes'
       }
     },
     {
       path: '/code/:id',
       name: 'codeedit',
-      component: CodeView,
+      component: CodeViewWithParams,
       meta: {
-        requiresAuth: true,
+        // requiresAuth: true,
         title: 'Write Codes'
       },
       beforeEnter: async (to, from, next) => {
-        let filterProjects = []
-        const projects = await getDocs(collection(db, 'showcase'))
-        projects.forEach((doc) => {
-          filterProjects.push(doc.data())
-        })
-        const getProject = filterProjects.filter((data) => data.projectId === to.params.id)
-        if (getProject.length > 0) {
+        const docRef = doc(db, 'showcase', to.params.id)
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
           next()
         } else {
           next('/404')

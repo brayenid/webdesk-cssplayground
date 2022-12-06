@@ -5,7 +5,8 @@ export const useAuthState = defineStore('auth', {
     return {
       isLoggedIn: false,
       userName: 'guess',
-      userId: null
+      userId: null,
+      userPhotoUrl: null
     }
   }
 })
