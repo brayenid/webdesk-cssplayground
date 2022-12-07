@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import Split from 'split.js'
 import { PrismEditor } from 'vue-prism-editor'
 import { highlight, languages } from 'prismjs/components/prism-core'
@@ -29,6 +29,14 @@ const css = (code) => highlight(code, languages.css)
 const javascript = (code) => highlight(code, languages.js)
 
 let project
+let projectLogs
+const projectMeta = reactive({
+  author: null,
+  title: null,
+  created: null,
+  isForked: null
+})
+const isShowDetail = ref(false)
 onMounted(async () => {
   const docRef = doc(db, 'showcase', route.params.id)
   const docSnap = await getDoc(docRef)
@@ -42,6 +50,10 @@ onMounted(async () => {
 
   if (docSnap.exists()) {
     project = docSnap.data()
+    projectMeta.author = docSnap.data().projectAuthor
+    projectMeta.title = docSnap.data().projectTitle
+    projectMeta.created = docSnap.data().dateCreated.toDate()
+    projectMeta.isForked = docSnap.data().originAuthorMeta.isForked ? 'True' : 'False'
     const { projectTitle } = project
     const { html, css, js } = project.code
     htmlCode.value = html
@@ -77,6 +89,7 @@ onMounted(async () => {
   const saveButton = document.querySelector('.saveProject')
   const deleteButton = document.querySelector('.deleteProject')
   const forkButton = document.querySelector('.forkProject')
+  const detailButton = document.querySelector('.detailsProject')
 
   const codeRunner = () => {
     viewer.open()
@@ -194,6 +207,9 @@ onMounted(async () => {
       alert('To fork this project, please sign in')
     }
   }
+  const codeInfo = () => {
+    isShowDetail.value = !isShowDetail.value
+  }
   const codeAreaCollapse = () => {
     const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
     const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
@@ -271,6 +287,7 @@ onMounted(async () => {
   saveButton.addEventListener('click', codeSaver)
   deleteButton.addEventListener('click', codeDelete)
   forkButton.addEventListener('click', codeFork)
+  detailButton.addEventListener('click', codeInfo)
 
   //Key listener
   document.addEventListener('keydown', (e) => {
@@ -289,10 +306,39 @@ onMounted(async () => {
   setTimeout(() => {
     codeRunner()
   }, 100)
+  projectLogs = project.originAuthorMeta.logs
+})
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.projectDetails') && e.target.className !== 'detailsProject') {
+    isShowDetail.value = false
+  }
 })
 </script>
 <template>
   <NavMenuForCoding />
+  <div class="projectDetails" v-show="isShowDetail">
+    <div class="title">
+      <span>Project Title :</span>
+      <p>{{ projectMeta.title }}</p>
+    </div>
+    <div class="author">
+      <span>Project Author :</span>
+      <p>{{ projectMeta.author }}</p>
+    </div>
+    <div class="created">
+      <span>Created At :</span>
+      <p>{{ projectMeta.created }}</p>
+    </div>
+    <div class="isForked">
+      <span>Forked :</span>
+      <p>{{ projectMeta.isForked }}</p>
+    </div>
+
+    <span>Forked logs :</span>
+    <ul>
+      <li v-for="meta in projectLogs"><img :src="meta.photo" alt="" />{{ meta.name }} <a :href="meta.url"> >> </a></li>
+    </ul>
+  </div>
   <main>
     <div class="codePane">
       <div class="codeArea split">
@@ -322,6 +368,9 @@ onMounted(async () => {
   </main>
 </template>
 <style scoped>
+a {
+  color: #aaa;
+}
 h3 {
   position: absolute;
   top: 0.8rem;
@@ -384,5 +433,37 @@ iframe {
   font-size: 14px;
   line-height: 1.5;
   padding: 5px;
+}
+.projectDetails {
+  position: absolute;
+  width: 100%;
+  max-width: 26rem;
+  height: 100vh;
+  z-index: 30;
+  right: 0;
+  background-color: #222;
+  color: #bbb;
+  box-sizing: border-box;
+  padding: 1rem;
+  line-height: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.projectDetails img {
+  width: 20px;
+  height: 20px;
+}
+.projectDetails span {
+  color: #444;
+}
+.title,
+.author,
+.created,
+.isForked {
+  margin-bottom: 1rem;
+}
+.projectDetails ul li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 </style>
