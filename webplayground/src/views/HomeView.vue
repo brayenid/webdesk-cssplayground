@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue'
 import { collection, query, limit, getDocs, getCountFromServer, orderBy } from '@firebase/firestore'
 import { db } from '../firebase'
 import EyesLoading from '../components/EyesLoading.vue'
-import { useAuthState } from '../stores/auth'
 
 const showcase = ref([])
 const isLoading = ref(true)
