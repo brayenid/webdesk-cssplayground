@@ -103,7 +103,6 @@ onMounted(async () => {
       }
     }
     if (isLoggedIn.value) {
-      console.log(isLoggedIn.value)
       if (projectTitle.value) {
         const projectAuthorId = project.projectAuthorId
         if (projectAuthorId === userId.value) {

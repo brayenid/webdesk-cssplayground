@@ -1,12 +1,10 @@
 <script setup>
 import { GoogleAuthProvider, signInWithPopup, signOut, getAuth, onAuthStateChanged } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthState } from '../stores/auth'
 import tippy from 'tippy.js'
 
 const authenticated = useAuthState()
-const router = useRouter()
 const showPopUp = ref(false)
 
 onMounted(() => {
@@ -47,7 +45,7 @@ document.addEventListener('click', (e) => {
         <h3 class="displayName">Hello, {{ getAuth().currentUser.displayName }}</h3>
         <button @click="signout" data-title="Sign Out" class="signOut buttonGoogle">Sign Out</button>
       </div>
-      <div class="userPhotoContainer" ref="button" @click="showPopUp = !showPopUp">
+      <div class="userPhotoContainer" @click="showPopUp = !showPopUp">
         <img class="userPhoto" :src="getAuth().currentUser.photoURL" />
       </div>
     </div>
