@@ -79,6 +79,17 @@ onMounted(() => {
       projectAuthor: userName.value,
       projectAuthorId: userId.value,
       projectAuthorPhoto: userPhotoUrl.value,
+      originAuthorMeta: {
+        isForked: false,
+        logs: [
+          {
+            name: userName.value,
+            id: userId.value,
+            photo: userPhotoUrl.value,
+            url: `/code/${projectId}`
+          }
+        ]
+      },
       dateCreated,
       code: {
         html: htmlCode.value,

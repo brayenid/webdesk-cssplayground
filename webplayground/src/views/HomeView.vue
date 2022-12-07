@@ -17,12 +17,13 @@ const getDatas = async (number) => {
   const q = query(collection(db, 'showcase'), limit(number), orderBy('dateCreated', 'desc'))
   const querySnapshot = await getDocs(q)
   querySnapshot.forEach((doc) => {
-    const { projectId, projectAuthor, projectTitle, projectAuthorPhoto, code } = doc.data()
+    const { projectId, projectAuthor, projectTitle, projectAuthorPhoto, originAuthorMeta, code } = doc.data()
     const project = {
       id: projectId,
       author: projectAuthor,
       title: projectTitle,
       authorPhoto: projectAuthorPhoto,
+      isForked: originAuthorMeta.isForked,
       code: {
         html: code.html,
         css: code.css,
@@ -36,9 +37,7 @@ const getDatas = async (number) => {
 const addLimit = ({ limitNumber }) => {
   limitPost.value += limitNumber
   getDatas(limitPost.value)
-  console.log(limitPost.value, databaseLength)
   if (limitPost.value >= databaseLength) {
-    console.log('reached')
     isReachFullPosts.value = true
   }
 }
@@ -49,6 +48,7 @@ onMounted(() => {
       isReachFullPosts.value = true
     }
   })
+
   getDatas(limitPost.value).then(() => {
     isShowLoader.value = true
     isLoading.value = false
@@ -67,9 +67,8 @@ onMounted(() => {
           <a :href="`/code/${project.id}`"><img :src="project.authorPhoto" :alt="project.author" /></a>
         </div>
         <div class="projectTitle">
-          <a :href="`/code/${project.id}`"
-            ><h3>{{ project.title }}</h3></a
-          >
+          <a :href="`/code/${project.id}`">{{ project.title }}</a>
+          <span title="Forked" class="isForked" v-show="project.isForked"><font-awesome-icon icon="fa-solid fa-code-fork" /></span>
           <p>{{ project.author }}</p>
         </div>
       </div>
@@ -104,12 +103,13 @@ h2 {
   width: 100%;
   color: white;
 }
-.projectTitle h3 {
+.projectTitle a {
   font-size: 1.2rem;
   margin-bottom: 0.3rem;
   font-weight: 500;
 }
 .projectTitle p {
+  margin: 0.5rem 0;
   font-size: 0.9rem;
   color: #bbb;
 }
@@ -142,5 +142,9 @@ h2 {
 }
 .load:hover {
   color: #eee;
+}
+.isForked {
+  margin-left: 1rem;
+  color: rgb(12, 110, 195);
 }
 </style>

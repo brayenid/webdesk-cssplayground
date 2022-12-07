@@ -92,6 +92,7 @@ button {
   color: #eee;
   border-radius: 0.3rem;
   border: 1px solid #333;
+  font-size: 0.8rem;
 }
 .writeCode a:hover {
   color: #fff;
