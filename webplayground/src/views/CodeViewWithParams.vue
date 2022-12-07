@@ -76,6 +76,7 @@ onMounted(async () => {
   const projectTitle = document.querySelector('.projectTitle')
   const saveButton = document.querySelector('.saveProject')
   const deleteButton = document.querySelector('.deleteProject')
+  const forkButton = document.querySelector('.forkProject')
 
   const codeRunner = () => {
     viewer.open()
@@ -95,7 +96,18 @@ onMounted(async () => {
       projectAuthor: userName.value,
       projectAuthorId: userId.value,
       projectAuthorPhoto: userPhotoUrl.value,
-      dateCreated,
+      originAuthorMeta: {
+        isForked: project.originAuthorMeta.isForked ? true : false,
+        logs: [
+          {
+            name: userName.value,
+            id: userId.value,
+            photo: userPhotoUrl.value,
+            url: `/code/${projectId}`
+          }
+        ]
+      },
+      dateCreated: project.dateCreated ? project.dateCreated : dateCreated,
       code: {
         html: htmlCode.value,
         css: cssCode.value,
@@ -143,7 +155,45 @@ onMounted(async () => {
       }
     }
   }
-
+  const codeFork = () => {
+    const dateCreated = new Date()
+    const originalCodeMeta = {
+      projectId: generateId,
+      projectTitle: projectTitle.value,
+      projectAuthor: userName.value,
+      projectAuthorId: userId.value,
+      projectAuthorPhoto: userPhotoUrl.value,
+      originAuthorMeta: {
+        isForked: true,
+        logs: [
+          ...project.originAuthorMeta.logs,
+          {
+            name: userName.value,
+            id: generateId,
+            photo: userPhotoUrl.value,
+            url: `/code/${generateId}`
+          }
+        ]
+      },
+      dateCreated,
+      code: {
+        html: htmlCode.value,
+        css: cssCode.value,
+        js: jsCode.value
+      }
+    }
+    const isFork = confirm('Fork This?')
+    if (isLoggedIn.value) {
+      if (isFork) {
+        saveToDb('showcase', generateId, originalCodeMeta).then(() => {
+          alert('Forked')
+          location.replace(`/code/${generateId}`)
+        })
+      }
+    } else {
+      alert('To fork this project, please sign in')
+    }
+  }
   const codeAreaCollapse = () => {
     const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
     const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
@@ -220,6 +270,7 @@ onMounted(async () => {
   codePaneButtonHorizontal.addEventListener('click', changeViewHorizontal)
   saveButton.addEventListener('click', codeSaver)
   deleteButton.addEventListener('click', codeDelete)
+  forkButton.addEventListener('click', codeFork)
 
   //Key listener
   document.addEventListener('keydown', (e) => {
