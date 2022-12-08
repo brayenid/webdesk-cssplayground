@@ -2,7 +2,7 @@
 @import './reset.css';
 :root {
   --maxwidthContainer: 980px;
-  --minheightContainer: 100vh;
+  --minheightContainer: 90vh;
 }
 ::-webkit-scrollbar {
   width: 8px;
