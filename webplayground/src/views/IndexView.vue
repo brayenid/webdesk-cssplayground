@@ -8,6 +8,7 @@ const thisYear = new Date().getFullYear()
     <NavMenu />
     <RouterView />
     <footer>
+      <p>Websdeck</p>
       <p>© {{ thisYear }} <a href="https://brayenluhat.xyz" target="_blank" rel="noopener noreferrer">Brayen Luhat</a></p>
     </footer>
   </main>
@@ -25,7 +26,7 @@ footer {
   color: #666;
   font-size: 0.8rem;
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
   align-items: center;
   height: 4rem;
   box-sizing: border-box;
