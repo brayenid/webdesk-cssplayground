@@ -6,7 +6,7 @@ import EyesLoading from '../components/EyesLoading.vue'
 
 const showcase = ref([])
 const isLoading = ref(true)
-const limitPost = ref(6)
+const limitPost = ref(8)
 const isReachFullPosts = ref(false)
 const isShowLoader = ref(false)
 const getDatabaseLength = collection(db, 'showcase')
@@ -73,7 +73,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <button @click="addLimit({ limitNumber: 6 })" v-if="!isReachFullPosts && isShowLoader" class="load">Load</button>
+    <button @click="addLimit({ limitNumber: 8 })" v-if="!isReachFullPosts && isShowLoader" class="load">Load</button>
   </main>
 </template>
 <style scoped>
