@@ -87,8 +87,11 @@ main {
   background-color: #111;
   padding: 1rem;
   box-sizing: border-box;
-  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
   text-align: center;
+  width: 100%;
+  max-width: var(--maxwidthContainer);
+  margin: auto;
+  min-height: var(--minheightContainer);
 }
 h2 {
   color: #fff;

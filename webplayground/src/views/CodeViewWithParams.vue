@@ -90,6 +90,7 @@ onMounted(async () => {
   const deleteButton = document.querySelector('.deleteProject')
   const forkButton = document.querySelector('.forkProject')
   const detailButton = document.querySelector('.detailsProject')
+  const buttonArea = document.querySelector('.buttonArea')
 
   const codeRunner = () => {
     viewer.open()
@@ -287,7 +288,12 @@ onMounted(async () => {
   saveButton.addEventListener('click', codeSaver)
   deleteButton.addEventListener('click', codeDelete)
   forkButton.addEventListener('click', codeFork)
-  detailButton.addEventListener('click', codeInfo)
+  detailButton.addEventListener('click', () => {
+    codeInfo()
+    if (innerWidth <= 700) {
+      document.querySelector('.projectDetails').style.marginTop = `${buttonArea.offsetHeight}px`
+    }
+  })
 
   //Key listener
   document.addEventListener('keydown', (e) => {
@@ -309,7 +315,7 @@ onMounted(async () => {
   projectLogs = project.originAuthorMeta.logs
 })
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('.projectDetails') && e.target.className !== 'detailsProject') {
+  if (!e.target.closest('.projectDetails') && !e.target.closest('.detailsProject')) {
     isShowDetail.value = false
   }
 })
@@ -333,8 +339,7 @@ document.addEventListener('click', (e) => {
       <span>Forked :</span>
       <p>{{ projectMeta.isForked }}</p>
     </div>
-
-    <span>Forked logs :</span>
+    <span>Forked Logs :</span>
     <ul>
       <li v-for="meta in projectLogs"><img :src="meta.photo" alt="" />{{ meta.name }} <a :href="meta.url"> >> </a></li>
     </ul>
@@ -344,19 +349,19 @@ document.addEventListener('click', (e) => {
       <div class="codeArea split">
         <div id="html" class="htmlArea">
           <h3>
-            <i class="devicon-html5-plain colored"></i>
+            <font-awesome-icon icon="fa-brands fa-html5" />
           </h3>
           <PrismEditor class="editorField" v-model="htmlCode" :highlight="html" line-numbers></PrismEditor>
         </div>
         <div id="css" class="cssArea">
           <h3>
-            <i class="devicon-css3-plain colored"></i>
+            <font-awesome-icon icon="fa-brands fa-css3-alt" />
           </h3>
           <PrismEditor class="editorField" v-model="cssCode" :highlight="css" line-numbers></PrismEditor>
         </div>
         <div id="js" class="jsArea">
           <h3>
-            <i class="devicon-javascript-plain colored"></i>
+            <font-awesome-icon icon="fa-brands fa-js" />
           </h3>
           <PrismEditor class="editorField" v-model="jsCode" :highlight="javascript" line-numbers></PrismEditor>
         </div>
@@ -373,7 +378,7 @@ a {
 }
 h3 {
   position: absolute;
-  top: 0.8rem;
+  top: 0.4rem;
   right: 0.8rem;
   z-index: 10;
   width: 100%;
@@ -408,7 +413,7 @@ iframe {
   background-color: #222;
   color: #fff;
   overflow-y: auto;
-  padding: 3rem 1rem 1rem 0.5rem;
+  padding: 2rem 0.6rem 1rem 0.5rem;
   box-sizing: border-box;
   border-radius: 0.3rem;
   width: 100%;
@@ -427,7 +432,6 @@ iframe {
   flex-direction: column !important;
 }
 .editorField {
-  background: #2d2d2d;
   color: #ccc;
   font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
   font-size: 14px;

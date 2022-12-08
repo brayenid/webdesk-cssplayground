@@ -17,26 +17,32 @@ onMounted(() => {
 <template>
   <header>
     <nav>
-      <div class="titleAndMenu">
-        <a href="/">
-          <h1 class="websdeck">Webs<span>deck</span></h1></a
-        >
-        <ul class="menuList" v-if="$route.name !== 'code' || $route.name !== 'codeedit'">
-          <li><RouterLink to="/about">About</RouterLink></li>
-          <li><RouterLink to="/attribution">Attribution</RouterLink></li>
-        </ul>
-      </div>
-      <div class="writeAndAccount">
-        <div class="writeCode">
-          <a class="link" data-title="Write code" href="/code"><font-awesome-icon icon="fa-solid fa-pen" /></a>
+      <div class="navWrap">
+        <div class="titleAndMenu">
+          <a href="/"> <img src="@/assets/websdeck.webp" alt="" /></a>
+          <ul class="menuList" v-if="$route.name !== 'code' || $route.name !== 'codeedit'">
+            <li><RouterLink to="/about">About</RouterLink></li>
+            <li><RouterLink to="/attribution">Attribution</RouterLink></li>
+          </ul>
         </div>
-        <GoogleLogin />
+        <div class="writeAndAccount">
+          <div class="writeCode">
+            <a class="link" data-title="Write code" href="/code"><font-awesome-icon icon="fa-solid fa-pen" /></a>
+          </div>
+          <GoogleLogin />
+        </div>
       </div>
     </nav>
   </header>
 </template>
 <style scoped>
 nav {
+  background-color: #222;
+}
+.navWrap {
+  width: 100%;
+  max-width: var(--maxwidthContainer);
+  margin: auto;
   background-color: #161616;
   display: flex;
   justify-content: space-between;
@@ -58,6 +64,9 @@ nav {
   display: flex;
   gap: 2rem;
   align-items: center;
+}
+.titleAndMenu img {
+  width: 40px;
 }
 .menuList {
   display: flex;

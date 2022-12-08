@@ -1,9 +1,16 @@
 <script setup>
 import tippy from 'tippy.js'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import GoogleLogin from './GoogleLogin.vue'
 import { useRoute } from 'vue-router'
+const isShowPlayMenu = ref(false)
+const toggleMenu = () => {
+  isShowPlayMenu.value = !isShowPlayMenu.value
+}
 onMounted(() => {
+  if (innerWidth >= 700) {
+    isShowPlayMenu.value = true
+  }
   const buttons = document.querySelectorAll('button')
   buttons.forEach((button) => {
     tippy(button, {
@@ -17,21 +24,38 @@ const route = useRoute()
   <header>
     <nav>
       <div class="titleAndMenu">
-        <a href="/">
-          <h1 class="websdeck">Webs<span>deck</span></h1></a
-        >
+        <a href="/"> <img src="@/assets/websdeck.webp" alt="" /></a>
       </div>
-      <div class="buttonArea">
-        <button data-title="Code Area Toggle (CTRL+0)" id="collapseMenu" class="codeCollapseExpand"><font-awesome-icon icon="fa-solid fa-code" /></button>
-        <button data-title="Run Code (CTRL+Enter)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
-        <button data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
-        <button data-title="Change View Horizontal" class="codeViewHorizontal"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button>
-        <input type="text" class="projectTitle" placeholder="Title" />
-        <button data-title="Save" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
-        <button v-show="route.params.id" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
-        <button v-show="route.params.id" data-title="Fork This" class="forkProject"><font-awesome-icon icon="fa-solid fa-code-fork" /></button>
-        <button v-show="route.params.id" data-title="Project Details" class="detailsProject"><font-awesome-icon icon="fa-solid fa-info" /></button>
-      </div>
+      <ul class="buttonArea" v-show="isShowPlayMenu">
+        <li>
+          <button data-title="Code Area Toggle (CTRL+0)" id="collapseMenu" class="codeCollapseExpand"><font-awesome-icon icon="fa-solid fa-code" /></button>
+        </li>
+        <li>
+          <button data-title="Run Code (CTRL+Enter)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
+        </li>
+        <li>
+          <button data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
+        </li>
+        <li>
+          <button data-title="Change View Horizontal" class="codeViewHorizontal"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button>
+        </li>
+        <li>
+          <input type="text" class="projectTitle" placeholder="Title" />
+        </li>
+        <li>
+          <button data-title="Save" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
+        </li>
+        <li>
+          <button v-show="route.params.id" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
+        </li>
+        <li>
+          <button v-show="route.params.id" data-title="Fork This" class="forkProject"><font-awesome-icon icon="fa-solid fa-code-fork" /></button>
+        </li>
+        <li>
+          <button v-show="route.params.id" data-title="Project Details" class="detailsProject"><font-awesome-icon class="detailsIcon" icon="fa-solid fa-info" /></button>
+        </li>
+      </ul>
+      <button @click="toggleMenu" class="menuToggle"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
       <GoogleLogin />
     </nav>
   </header>
@@ -60,15 +84,28 @@ nav {
   gap: 2rem;
   align-items: center;
 }
+.titleAndMenu img {
+  width: 40px;
+}
 .buttonArea {
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  flex-wrap: wrap;
+  width: 100%;
+  background-color: #111;
+  z-index: 40;
   display: flex;
-  gap: 0.7rem;
+  gap: 2rem;
+  align-items: baseline;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 1rem;
 }
 button {
-  border: 1px solid #333;
+  border: none;
   outline: none;
   color: #aaa;
-  padding: 0.5rem 1rem;
   cursor: pointer;
   border-radius: 0.2rem;
   background-color: transparent;
@@ -93,5 +130,22 @@ button:hover {
   border-bottom: 1px solid #333;
   color: #fff;
   outline: none;
+}
+@media screen and (min-width: 700px) {
+  .buttonArea {
+    position: static;
+    flex-wrap: wrap;
+    width: 100%;
+    background-color: transparent;
+    display: flex;
+    gap: 2rem;
+    align-items: baseline;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 1rem;
+  }
+  .menuToggle {
+    display: none;
+  }
 }
 </style>
