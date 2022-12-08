@@ -8,7 +8,7 @@ const toggleMenu = () => {
   isShowPlayMenu.value = !isShowPlayMenu.value
 }
 onMounted(() => {
-  if (innerWidth >= 700) {
+  if (innerWidth >= 850) {
     isShowPlayMenu.value = true
   }
   const buttons = document.querySelectorAll('button')
@@ -55,7 +55,7 @@ const route = useRoute()
           <button v-show="route.params.id" data-title="Project Details" class="detailsProject"><font-awesome-icon class="detailsIcon" icon="fa-solid fa-info" /></button>
         </li>
       </ul>
-      <button @click="toggleMenu" class="menuToggle"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
+      <button @click="toggleMenu" class="menuToggle" data-title="Control Menu"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
       <GoogleLogin />
     </nav>
   </header>
@@ -86,6 +86,7 @@ nav {
 }
 .titleAndMenu img {
   width: 40px;
+  transform: translateY(2.7px);
 }
 .buttonArea {
   position: absolute;
@@ -131,7 +132,7 @@ button:hover {
   color: #fff;
   outline: none;
 }
-@media screen and (min-width: 700px) {
+@media screen and (min-width: 850px) {
   .buttonArea {
     position: static;
     flex-wrap: wrap;
