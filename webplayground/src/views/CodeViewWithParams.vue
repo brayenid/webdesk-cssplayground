@@ -290,7 +290,7 @@ onMounted(async () => {
   forkButton.addEventListener('click', codeFork)
   detailButton.addEventListener('click', () => {
     codeInfo()
-    if (innerWidth <= 700) {
+    if (innerWidth <= 850) {
       document.querySelector('.projectDetails').style.marginTop = `${buttonArea.offsetHeight}px`
     }
   })

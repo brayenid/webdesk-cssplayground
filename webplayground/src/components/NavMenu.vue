@@ -79,6 +79,7 @@ nav {
 }
 .titleAndMenu img {
   width: 40px;
+  transform: translateY(2.7px);
 }
 .menuList {
   background-color: #222;
