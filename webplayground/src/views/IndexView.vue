@@ -17,21 +17,21 @@ a {
   color: #666;
 }
 .indexContainer {
-  max-width: 900px;
-  margin: 1rem auto 0;
+  margin: auto;
   overflow: hidden;
-  border-radius: 0.2rem;
-  box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.5);
 }
 footer {
-  background-color: #161616;
+  background-color: #121212;
   color: #666;
   font-size: 0.8rem;
   display: flex;
   justify-content: end;
   align-items: center;
-  height: 3rem;
+  height: 4rem;
   box-sizing: border-box;
   padding: 0 1rem;
+  width: 100%;
+  max-width: var(--maxwidthContainer);
+  margin: auto;
 }
 </style>

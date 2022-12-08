@@ -218,19 +218,19 @@ onMounted(() => {
       <div class="codeArea split">
         <div id="html" class="htmlArea">
           <h3>
-            <i class="devicon-html5-plain colored"></i>
+            <font-awesome-icon icon="fa-brands fa-html5" />
           </h3>
           <PrismEditor class="editorField" v-model="htmlCode" :highlight="html" line-numbers></PrismEditor>
         </div>
         <div id="css" class="cssArea">
           <h3>
-            <i class="devicon-css3-plain colored"></i>
+            <font-awesome-icon icon="fa-brands fa-css3-alt" />
           </h3>
           <PrismEditor class="editorField" v-model="cssCode" :highlight="css" line-numbers></PrismEditor>
         </div>
         <div id="js" class="jsArea">
           <h3>
-            <i class="devicon-javascript-plain colored"></i>
+            <font-awesome-icon icon="fa-brands fa-js" />
           </h3>
           <PrismEditor class="editorField" v-model="jsCode" :highlight="javascript" line-numbers></PrismEditor>
         </div>
@@ -244,7 +244,7 @@ onMounted(() => {
 <style scoped>
 h3 {
   position: absolute;
-  top: 0.8rem;
+  top: 0.4rem;
   right: 0.8rem;
   z-index: 10;
   width: 100%;
@@ -279,7 +279,7 @@ iframe {
   background-color: #222;
   color: #fff;
   overflow-y: auto;
-  padding: 3rem 1rem 1rem 0.5rem;
+  padding: 2rem 0.6rem 1rem 0.5rem;
   box-sizing: border-box;
   border-radius: 0.3rem;
   width: 100%;
@@ -298,7 +298,6 @@ iframe {
   flex-direction: column !important;
 }
 .editorField {
-  background: #2d2d2d;
   color: #ccc;
   font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
   font-size: 14px;
