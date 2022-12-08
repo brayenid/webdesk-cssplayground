@@ -61,7 +61,7 @@ onMounted(async () => {
     jsCode.value = js
     projectTitleEl.value = projectTitle
   } else {
-    console.log('No such document!')
+    console.log('No such document.')
   }
 
   let codeAreaVerticalSplit
@@ -140,13 +140,13 @@ onMounted(async () => {
               }
             })
           } else {
-            alert('Codes are empty, make at least on line code.')
+            alert('Codes are empty, make at least one line code.')
           }
         } else {
-          alert('This is someone else project, but you can fork it.')
+          alert(`This is someone else's project, but you can fork it.`)
         }
       } else {
-        alert('Title is empty')
+        alert(`Title can't be empty`)
         return
       }
     } else {
@@ -200,12 +200,12 @@ onMounted(async () => {
     if (isLoggedIn.value) {
       if (isFork) {
         saveToDb('showcase', generateId, originalCodeMeta).then(() => {
-          alert('Forked')
+          alert('Forked.')
           location.replace(`/code/${generateId}`)
         })
       }
     } else {
-      alert('To fork this project, please sign in')
+      alert('To fork this project, please login.')
     }
   }
   const codeInfo = () => {
