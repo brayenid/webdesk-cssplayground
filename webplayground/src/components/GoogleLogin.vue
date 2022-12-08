@@ -62,7 +62,7 @@ button {
   border-radius: 0.2rem;
 }
 .googleSignIn {
-  background-color: antiquewhite;
+  background-color: #fff;
   color: #9c254d;
 }
 .signOut {

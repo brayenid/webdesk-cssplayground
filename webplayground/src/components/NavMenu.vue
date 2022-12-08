@@ -1,7 +1,10 @@
 <script setup>
 import tippy from 'tippy.js'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import GoogleLogin from './GoogleLogin.vue'
+const menuList = ref(null)
+const toggleMenu = ref(null)
+
 onMounted(() => {
   const signInButton = document.querySelector('.googleSignIn')
   const writeButton = document.querySelector('.link')
@@ -12,6 +15,14 @@ onMounted(() => {
   }
   tippyInit(signInButton, signInButton.dataset.title)
   tippyInit(writeButton, writeButton.dataset.title)
+  toggleMenu.value.addEventListener('click', () => {
+    menuList.value.classList.toggle('menuListAppear')
+  })
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.toggleMenuIndex') && !e.target.closest('.menuList')) {
+      menuList.value.classList.remove('menuListAppear')
+    }
+  })
 })
 </script>
 <template>
@@ -20,10 +31,11 @@ onMounted(() => {
       <div class="navWrap">
         <div class="titleAndMenu">
           <a href="/"> <img src="@/assets/websdeck.webp" alt="" /></a>
-          <ul class="menuList" v-if="$route.name !== 'code' || $route.name !== 'codeedit'">
+          <ul ref="menuList" class="menuList">
             <li><RouterLink to="/about">About</RouterLink></li>
             <li><RouterLink to="/attribution">Attribution</RouterLink></li>
           </ul>
+          <button ref="toggleMenu" class="toggleMenuIndex"><font-awesome-icon icon="fa-solid fa-bars" /></button>
         </div>
         <div class="writeAndAccount">
           <div class="writeCode">
@@ -62,19 +74,33 @@ nav {
 }
 .titleAndMenu {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   align-items: center;
 }
 .titleAndMenu img {
   width: 40px;
 }
 .menuList {
+  background-color: #222;
+  position: absolute;
   display: flex;
-  gap: 2rem;
+  width: 100%;
+  top: 3.8rem;
+  left: 0;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 1rem;
+  transform: translateX(-100%);
+  transition: 0.1s ease-in-out;
+}
+.menuListAppear {
+  transform: translate(0);
 }
 .menuList a {
   text-decoration: none;
   color: #fff;
+  display: block;
+  padding: 1.5rem 0;
 }
 button {
   border: none;
@@ -97,13 +123,29 @@ button {
   background-color: rgb(208, 46, 46);
 }
 .writeCode a {
-  padding: 0.5rem 1rem;
   color: #eee;
   border-radius: 0.3rem;
-  border: 1px solid #333;
   font-size: 0.8rem;
+  padding: 1rem;
 }
 .writeCode a:hover {
   color: #fff;
+}
+.toggleMenuIndex {
+  background-color: transparent;
+  font-size: 1.5rem;
+}
+@media screen and (min-width: 700px) {
+  .menuList {
+    background-color: transparent;
+    position: static;
+    flex-direction: row;
+    padding: 1rem;
+    transform: translate(0);
+    gap: 2rem;
+  }
+  .toggleMenuIndex {
+    display: none;
+  }
 }
 </style>

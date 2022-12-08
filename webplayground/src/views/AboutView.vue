@@ -33,7 +33,7 @@ a {
   font-weight: lighter;
   font-size: 1.3rem;
   box-sizing: border-box;
-  padding: 1.5rem 5rem;
+  padding: 1.5rem;
   min-height: var(--minheightContainer);
 }
 .about h1 {

@@ -92,6 +92,7 @@ main {
   max-width: var(--maxwidthContainer);
   margin: auto;
   min-height: var(--minheightContainer);
+  overflow: hidden;
 }
 h2 {
   color: #fff;
