@@ -61,7 +61,7 @@ onMounted(async () => {
     jsCode.value = js
     projectTitleEl.value = projectTitle
   } else {
-    console.log('No such document!')
+    console.log('No such document.')
   }
 
   let codeAreaVerticalSplit
