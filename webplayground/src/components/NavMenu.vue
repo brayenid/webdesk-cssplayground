@@ -93,6 +93,7 @@ nav {
   padding: 1rem;
   transform: translateX(-100%);
   transition: 0.1s ease-in-out;
+  z-index: 20;
 }
 .menuListAppear {
   transform: translate(0);

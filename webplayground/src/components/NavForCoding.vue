@@ -95,7 +95,7 @@ nav {
   flex-wrap: wrap;
   width: 100%;
   background-color: #111;
-  z-index: 40;
+  z-index: 39;
   display: flex;
   gap: 2rem;
   align-items: baseline;
