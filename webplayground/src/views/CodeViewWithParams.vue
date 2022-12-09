@@ -112,14 +112,7 @@ onMounted(async () => {
       projectAuthorPhoto: userPhotoUrl.value,
       originAuthorMeta: {
         isForked: project.originAuthorMeta.isForked ? true : false,
-        logs: [
-          {
-            name: userName.value,
-            id: userId.value,
-            photo: userPhotoUrl.value,
-            url: `/code/${projectId}`
-          }
-        ]
+        logs: [...project.originAuthorMeta.logs]
       },
       dateCreated: project.dateCreated ? project.dateCreated : dateCreated,
       code: {
