@@ -101,7 +101,7 @@ button {
   gap: 0.6rem;
   border-radius: 0.2rem;
   color: #fff;
-  z-index: 20;
+  z-index: 40;
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
 }
 </style>
