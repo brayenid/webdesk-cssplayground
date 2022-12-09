@@ -43,7 +43,7 @@ const route = useRoute()
           <input type="text" class="projectTitle" placeholder="Title" />
         </li>
         <li>
-          <button data-title="Save" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
+          <button data-title="Save (CTRL+S)" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
         </li>
         <li>
           <button v-show="route.params.id" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
