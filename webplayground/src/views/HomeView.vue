@@ -111,6 +111,7 @@ h2 {
   font-size: 1.1rem;
   margin-bottom: 0.3rem;
   font-weight: 500;
+  line-height: 1.3rem;
 }
 .projectTitle p {
   margin: 0.5rem 0;
