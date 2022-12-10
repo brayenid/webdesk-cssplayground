@@ -19,7 +19,7 @@
 }
 .skeletonImg {
   background-color: #333;
-  width: 45px;
+  min-width: 45px;
   height: 45px;
 }
 .titleAndAuthorSkeleton {
