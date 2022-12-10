@@ -26,7 +26,7 @@
   height: 45px;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
   width: 100%;
 }
 .titleSkeleton {
@@ -46,6 +46,5 @@
   background-color: #333;
   height: 49%;
   width: 100px;
-  margin: 0.5rem 0;
 }
 </style>
