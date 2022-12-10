@@ -45,14 +45,14 @@ const route = useRoute()
         <li>
           <button data-title="Save (CTRL+S)" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
         </li>
-        <li>
-          <button v-show="route.params.id" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
+        <li v-if="route.params.id">
+          <button data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
         </li>
-        <li>
-          <button v-show="route.params.id" data-title="Fork This" class="forkProject"><font-awesome-icon icon="fa-solid fa-code-fork" /></button>
+        <li v-if="route.params.id">
+          <button data-title="Fork This" class="forkProject"><font-awesome-icon icon="fa-solid fa-code-fork" /></button>
         </li>
-        <li>
-          <button v-show="route.params.id" data-title="Project Details" class="detailsProject"><font-awesome-icon class="detailsIcon" icon="fa-solid fa-info" /></button>
+        <li v-if="route.params.id">
+          <button data-title="Project Details" class="detailsProject"><font-awesome-icon class="detailsIcon" icon="fa-solid fa-info" /></button>
         </li>
       </ul>
       <button @click="toggleMenu" class="menuToggle" data-title="Control Menu"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
