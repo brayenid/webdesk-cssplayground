@@ -333,7 +333,7 @@ document.addEventListener('click', (e) => {
       <p>{{ projectMeta.isForked }}</p>
     </div>
     <span>Forked Logs :</span>
-    <ul>
+    <ul class="forkedLogs">
       <li v-for="meta in projectLogs"><img :src="meta.photo" alt="" />{{ meta.name }} <a :href="meta.url"> >> </a></li>
     </ul>
   </div>
@@ -462,5 +462,8 @@ iframe {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+.forkedLogs li {
+  margin-bottom: 0.3rem;
 }
 </style>
