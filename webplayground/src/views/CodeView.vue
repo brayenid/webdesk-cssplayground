@@ -194,7 +194,7 @@ onMounted(() => {
 
   //Key listener
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.ctrlKey) {
+    if (e.key === '.' && e.ctrlKey) {
       codeRunner()
     }
     if (e.ctrlKey && e.key === '0') {
