@@ -14,7 +14,7 @@
 .skeleton {
   margin-bottom: 1rem;
   display: flex;
-  gap: 0.3rem;
+  gap: 1rem;
   width: 100%;
 }
 .skeletonImg {
@@ -46,5 +46,6 @@
   background-color: #333;
   height: 49%;
   width: 100px;
+  margin: 0.5rem 0;
 }
 </style>
