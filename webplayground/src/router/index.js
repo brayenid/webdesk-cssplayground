@@ -85,28 +85,8 @@ const router = createRouter({
   ]
 })
 
-const getCurrentUser = () => {
-  return new Promise((resolve, reject) => {
-    onAuthStateChanged(getAuth(), (user) => {
-      resolve(user)
-    })
-    reject
-  })
-}
-
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from) => {
   document.title = to.meta.title
-  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  if (requiresAuth) {
-    if (await getCurrentUser()) {
-      next()
-    } else {
-      alert('you dont have access')
-      next('/')
-    }
-  } else {
-    next()
-  }
 })
 
 export default router
