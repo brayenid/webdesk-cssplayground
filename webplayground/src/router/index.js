@@ -61,7 +61,6 @@ const router = createRouter({
       name: 'code',
       component: CodeView,
       meta: {
-        // requiresAuth: true,
         title: 'Write Codes'
       }
     },
@@ -70,7 +69,6 @@ const router = createRouter({
       name: 'codeedit',
       component: CodeViewWithParams,
       meta: {
-        // requiresAuth: true,
         title: 'Write Codes'
       },
       beforeEnter: async (to, from, next) => {
@@ -88,14 +86,11 @@ const router = createRouter({
 
 const getCurrentUser = () => {
   return new Promise((resolve, reject) => {
-    const removeListener = onAuthStateChanged(
-      getAuth(),
-      (user) => {
-        removeListener()
-        resolve(user)
-      },
-      reject
-    )
+    onAuthStateChanged(getAuth(), (user) => {
+      // removeListener()
+      resolve(user)
+    })
+    reject
   })
 }
 
