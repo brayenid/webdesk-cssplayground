@@ -1,14 +1,14 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref, onUnmounted } from 'vue'
 import Split from 'split.js'
 import { PrismEditor } from 'vue-prism-editor'
 import { highlight, languages } from 'prismjs/components/prism-core'
 import { customAlphabet } from 'nanoid'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { doc, setDoc } from '@firebase/firestore'
 import { db } from '../firebase'
-import NavMenuForCoding from '../components/NavForCoding.vue'
 import { useAuthState } from '../stores/auth'
+import { useProjectInfo, useNavButton } from '../stores/project'
 import { storeToRefs } from 'pinia'
 
 import 'vue-prism-editor/dist/prismeditor.min.css'
@@ -19,6 +19,7 @@ import 'prismjs/components/prism-markup'
 import 'prismjs/themes/prism-tomorrow.css'
 
 const route = useRoute()
+const router = useRouter()
 
 const htmlCode = ref('')
 const cssCode = ref('')
@@ -28,162 +29,185 @@ const html = (code) => highlight(code, languages.html)
 const css = (code) => highlight(code, languages.css)
 const javascript = (code) => highlight(code, languages.js)
 
-let project
-onMounted(() => {
-  const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
-  const getMonth = new Date().getMonth()
-  const getYear = new Date().getFullYear()
-  const nanoId = customAlphabet('1234567890abcdef', 5)
-  const generateId = `${nanoId()}${getMonth}${getYear}`
-  const projectId = route.params.id ? route.params.id : generateId
+//elements
+const codeAreaEl = ref(null)
+const codePaneEl = ref(null)
+const htmlViewerEl = ref(null)
 
-  let codeAreaVerticalSplit
+const projectInfo = useProjectInfo()
+const navButtons = useNavButton()
+
+const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
+const getMonth = new Date().getMonth()
+const getYear = new Date().getFullYear()
+const nanoId = customAlphabet('1234567890abcdef', 5)
+const generateId = `${nanoId()}${getMonth}${getYear}`
+const projectId = route.params.id ? route.params.id : generateId
+
+let codeAreaSplit
+let codeAreaVerticalSplit
+//Method
+const saveToDb = async (collection, title, code) => {
+  await setDoc(doc(db, collection, title), code)
+}
+//This codeSaver function is holding Save and Update function
+const codeSaver = () => {
+  const dateCreated = new Date()
+  const dataProject = {
+    projectId: projectId,
+    projectTitle: projectInfo.projectTitle,
+    projectAuthor: userName.value,
+    projectAuthorId: userId.value,
+    projectAuthorPhoto: userPhotoUrl.value,
+    originAuthorMeta: {
+      isForked: false,
+      logs: [
+        {
+          name: userName.value,
+          id: userId.value,
+          photo: userPhotoUrl.value,
+          url: `/code/${projectId}`
+        }
+      ]
+    },
+    dateCreated,
+    code: {
+      html: htmlCode.value,
+      css: cssCode.value,
+      js: jsCode.value
+    }
+  }
+  if (isLoggedIn.value) {
+    if (projectInfo.projectTitle) {
+      if (htmlCode.value || cssCode.value || jsCode.value) {
+        saveToDb('showcase', projectId, dataProject).then(() => {
+          alert('Saved')
+          if (route.params.id !== projectId) {
+            router.replace(`/code/${projectId}`)
+          }
+        })
+      } else {
+        alert('Codes are empty, make at least one line code.')
+      }
+    } else {
+      alert(`Title can't be empty`)
+      return
+    }
+  } else {
+    alert('To save your progress, please login.')
+  }
+}
+const codeRunner = () => {
+  const viewer = htmlViewerEl.value.contentWindow.document
+  viewer.open()
+  viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
+  viewer.close()
+}
+const codeAreaCollapse = () => {
+  const codePane = codePaneEl.value
+  const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
+  const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
+  if (isCodePaneAtBottom) {
+    const isCollapsed = codeAreaSplit.getSizes()[0] > 1
+    !isCollapsed ? codeAreaSplit.setSizes([50, 50]) : codeAreaSplit.setSizes([100, 0])
+  } else if (!isCodePaneAtBottom) {
+    const isCollapsed = codeAreaSplit.getSizes()[0] <= 1
+    if (isCodePaneAtRight) {
+      !isCollapsed ? codeAreaSplit.collapse(1) : codeAreaSplit.setSizes([50, 50])
+    } else {
+      !isCollapsed ? codeAreaSplit.collapse(0) : codeAreaSplit.setSizes([50, 50])
+    }
+  }
+}
+const changeViewVertical = () => {
+  //To change the view of codePane, we need to destroy Split Js first
+  if (codeAreaSplit) {
+    codeAreaSplit.destroy()
+    codeAreaVerticalSplit.destroy()
+  }
+  changeCodePositionVerticalMode()
+  //Then we reinitialized it
+  setTimeout(() => {
+    reInitializeSplitJs('vertical')
+    reInitializeSplitJsHorizontal('horizontal')
+  }, 0)
+}
+const changeViewHorizontal = () => {
+  //To change the view of codePane, we need to destroy Split Js first
+  if (codeAreaSplit) {
+    codeAreaSplit.destroy()
+    codeAreaVerticalSplit.destroy()
+  }
+  changeCodePositionHorizontalMode()
+  //Then we reinitialized it
+  setTimeout(() => {
+    reInitializeSplitJs('horizontal')
+    reInitializeSplitJsHorizontal('vertical')
+  }, 0)
+}
+const reInitializeSplitJs = (direction) => {
+  codeAreaSplit = Split(['.codeArea', '.codeViewer'], {
+    gutterSize: 4,
+    minSize: 0,
+    direction
+  })
+}
+const reInitializeSplitJsHorizontal = (direction) => {
+  codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
+    gutterSize: 4,
+    minSize: [0, 0, 0],
+    direction
+  })
+}
+
+const changeCodePositionVerticalMode = () => {
+  const codePane = codePaneEl.value
+  const codeArea = codeAreaEl.value
+  codePane.classList.remove('codePaneChangeViewHorizontal')
+  codePane.classList.remove('codePaneHorizontalStatePos')
+  codePane.classList.toggle('codePaneChangeViewVertical')
+  codeArea.classList.remove('codeAreaOnHorizontalFlex')
+}
+const changeCodePositionHorizontalMode = () => {
+  const codePane = codePaneEl.value
+  const codeArea = codeAreaEl.value
+  codePane.classList.remove('codePaneChangeViewVertical')
+  codePane.classList.add('codePaneHorizontalStatePos')
+  codePane.classList.toggle('codePaneChangeViewHorizontal')
+  codeArea.classList.add('codeAreaOnHorizontalFlex')
+}
+
+const keyListener = (e) => {
+  if (e.key === '.' && e.ctrlKey) {
+    codeRunner()
+  }
+  if (e.ctrlKey && e.key === '0') {
+    codeAreaCollapse()
+  }
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault()
+    codeSaver()
+  }
+}
+
+onMounted(() => {
   codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
     minSize: [0, 0, 0],
     gutterSize: 4,
     direction: 'horizontal'
   })
 
-  let codeAreaSplit
   codeAreaSplit = Split(['.codeArea', '.codeViewer'], {
     direction: 'vertical',
     gutterSize: 4,
     minSize: 0
   })
 
-  const viewer = document.querySelector('#htmlViewer').contentWindow.document
-  const runner = document.querySelector('#runner')
-  const collapseMenu = document.querySelector('#collapseMenu')
-  const codePaneButtonVertical = document.querySelector('.codeViewVertical')
-  const codePaneButtonHorizontal = document.querySelector('.codeViewHorizontal')
-  const codePane = document.querySelector('.codePane')
-  const codeArea = document.querySelector('.codeArea')
-  const projectTitle = document.querySelector('.projectTitle')
-  const saveButton = document.querySelector('.saveProject')
-
-  const codeRunner = () => {
-    viewer.open()
-    viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
-    viewer.close()
-  }
-  const saveToDb = async (collection, title, code) => {
-    await setDoc(doc(db, collection, title), code)
-  }
-
-  //This codeSaver function is holding Save and Update function, I wish i could refactor this one day.
-  const codeSaver = () => {
-    const dateCreated = new Date()
-    const dataProject = {
-      projectId: projectId,
-      projectTitle: projectTitle.value,
-      projectAuthor: userName.value,
-      projectAuthorId: userId.value,
-      projectAuthorPhoto: userPhotoUrl.value,
-      originAuthorMeta: {
-        isForked: false,
-        logs: [
-          {
-            name: userName.value,
-            id: userId.value,
-            photo: userPhotoUrl.value,
-            url: `/code/${projectId}`
-          }
-        ]
-      },
-      dateCreated,
-      code: {
-        html: htmlCode.value,
-        css: cssCode.value,
-        js: jsCode.value
-      }
-    }
-    if (isLoggedIn.value) {
-      if (projectTitle.value) {
-        if (htmlCode.value || cssCode.value || jsCode.value) {
-          saveToDb('showcase', projectId, dataProject).then(() => {
-            alert('Saved')
-            location.replace(`/code/${projectId}`)
-          })
-        } else {
-          alert('Codes are empty, make at least on line code.')
-        }
-      } else {
-        alert('Title is empty')
-        return
-      }
-    } else {
-      alert('To save your progress, please login.')
-    }
-  }
-
-  const codeAreaCollapse = () => {
-    const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
-    const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
-    if (isCodePaneAtBottom) {
-      const isCollapsed = codeAreaSplit.getSizes()[0] > 1
-      !isCollapsed ? codeAreaSplit.setSizes([50, 50]) : codeAreaSplit.setSizes([100, 0])
-    } else if (!isCodePaneAtBottom) {
-      const isCollapsed = codeAreaSplit.getSizes()[0] <= 1
-      if (isCodePaneAtRight) {
-        !isCollapsed ? codeAreaSplit.collapse(1) : codeAreaSplit.setSizes([50, 50])
-      } else {
-        !isCollapsed ? codeAreaSplit.collapse(0) : codeAreaSplit.setSizes([50, 50])
-      }
-    }
-  }
-  const changeViewVertical = () => {
-    //To change the view of codePane, we need to destroy Split Js first
-    if (codeAreaSplit) {
-      codeAreaSplit.destroy()
-      codeAreaVerticalSplit.destroy()
-    }
-    changeCodePositionVerticalMode()
-    //Then we reinitialized it
-    setTimeout(() => {
-      reInitializeSplitJs('vertical')
-      reInitializeSplitJsHorizontal('horizontal')
-    }, 0)
-  }
-  const changeViewHorizontal = () => {
-    //To change the view of codePane, we need to destroy Split Js first
-    if (codeAreaSplit) {
-      codeAreaSplit.destroy()
-      codeAreaVerticalSplit.destroy()
-    }
-    changeCodePositionHorizontalMode()
-    //Then we reinitialized it
-    setTimeout(() => {
-      reInitializeSplitJs('horizontal')
-      reInitializeSplitJsHorizontal('vertical')
-    }, 0)
-  }
-
-  const reInitializeSplitJs = (direction) => {
-    codeAreaSplit = Split(['.codeArea', '.codeViewer'], {
-      gutterSize: 4,
-      minSize: 0,
-      direction
-    })
-  }
-  const reInitializeSplitJsHorizontal = (direction) => {
-    codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
-      gutterSize: 4,
-      minSize: [0, 0, 0],
-      direction
-    })
-  }
-  const changeCodePositionVerticalMode = () => {
-    codePane.classList.remove('codePaneChangeViewHorizontal')
-    codePane.classList.remove('codePaneHorizontalStatePos')
-    codePane.classList.toggle('codePaneChangeViewVertical')
-    codeArea.classList.remove('codeAreaOnHorizontalFlex')
-  }
-  const changeCodePositionHorizontalMode = () => {
-    codePane.classList.remove('codePaneChangeViewVertical')
-    codePane.classList.add('codePaneHorizontalStatePos')
-    codePane.classList.toggle('codePaneChangeViewHorizontal')
-    codeArea.classList.add('codeAreaOnHorizontalFlex')
-  }
+  const collapseMenu = navButtons.collapseMenu
+  const runner = navButtons.codeRunner
+  const codePaneButtonVertical = navButtons.codePaneButtonVertical
+  const codePaneButtonHorizontal = navButtons.codePaneButtonHorizontal
+  const saveButton = navButtons.saveButton
 
   //Button listener
   collapseMenu.addEventListener('click', codeAreaCollapse)
@@ -191,31 +215,32 @@ onMounted(() => {
   codePaneButtonVertical.addEventListener('click', changeViewVertical)
   codePaneButtonHorizontal.addEventListener('click', changeViewHorizontal)
   saveButton.addEventListener('click', codeSaver)
-
   //Key listener
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '.' && e.ctrlKey) {
-      codeRunner()
-    }
-    if (e.ctrlKey && e.key === '0') {
-      codeAreaCollapse()
-    }
-    if (e.ctrlKey && e.key === 's') {
-      e.preventDefault()
-      codeSaver()
-    }
-  })
+  document.addEventListener('keydown', keyListener)
   //after CodeView opened
   setTimeout(() => {
     codeRunner()
   }, 100)
 })
+onUnmounted(() => {
+  const runner = navButtons.codeRunner
+  const codePaneButtonVertical = navButtons.codePaneButtonVertical
+  const codePaneButtonHorizontal = navButtons.codePaneButtonHorizontal
+  const saveButton = navButtons.saveButton
+  const collapseMenu = navButtons.collapseMenu
+
+  collapseMenu.removeEventListener('click', codeAreaCollapse)
+  runner.removeEventListener('click', codeRunner)
+  codePaneButtonVertical.removeEventListener('click', changeViewVertical)
+  codePaneButtonHorizontal.removeEventListener('click', changeViewHorizontal)
+  saveButton.removeEventListener('click', codeSaver)
+  document.removeEventListener('keydown', keyListener)
+})
 </script>
 <template>
-  <NavMenuForCoding />
   <main>
-    <div class="codePane">
-      <div class="codeArea split">
+    <div class="codePane" ref="codePaneEl">
+      <div class="codeArea split" ref="codeAreaEl">
         <div id="html" class="htmlArea">
           <h3>
             <font-awesome-icon icon="fa-brands fa-html5" />
@@ -236,12 +261,15 @@ onMounted(() => {
         </div>
       </div>
       <div class="codeViewer">
-        <iframe id="htmlViewer" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-downloads allow-presentation"></iframe>
+        <iframe ref="htmlViewerEl" id="htmlViewer" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-downloads allow-presentation"></iframe>
       </div>
     </div>
   </main>
 </template>
 <style scoped>
+a {
+  color: #aaa;
+}
 h3 {
   position: absolute;
   top: 0.4rem;
@@ -303,5 +331,40 @@ iframe {
   font-size: 14px;
   line-height: 1.5;
   padding: 5px;
+}
+.projectDetails {
+  position: absolute;
+  width: 100%;
+  max-width: 26rem;
+  height: 100vh;
+  z-index: 30;
+  right: 0;
+  background-color: #222;
+  color: #bbb;
+  box-sizing: border-box;
+  padding: 1rem;
+  line-height: 1.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.projectDetails img {
+  width: 20px;
+  height: 20px;
+}
+.projectDetails span {
+  color: #444;
+}
+.title,
+.author,
+.created,
+.isForked {
+  margin-bottom: 1rem;
+}
+.projectDetails ul li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.forkedLogs li {
+  margin-bottom: 0.3rem;
 }
 </style>

@@ -1,14 +1,15 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, onUnmounted } from 'vue'
 import Split from 'split.js'
 import { PrismEditor } from 'vue-prism-editor'
 import { highlight, languages } from 'prismjs/components/prism-core'
 import { customAlphabet } from 'nanoid'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { doc, getDoc, setDoc, deleteDoc } from '@firebase/firestore'
 import { db } from '../firebase'
-import NavMenuForCoding from '../components/NavForCoding.vue'
 import { useAuthState } from '../stores/auth'
+import { useProjectInfo, useNavButton } from '../stores/project'
+import { storeToRefs } from 'pinia'
 
 import 'vue-prism-editor/dist/prismeditor.min.css'
 import 'prismjs/components/prism-clike'
@@ -16,9 +17,9 @@ import 'prismjs/components/prism-css'
 import 'prismjs/components/prism-javascript'
 import 'prismjs/components/prism-markup'
 import 'prismjs/themes/prism-tomorrow.css'
-import { storeToRefs } from 'pinia'
 
 const route = useRoute()
+const router = useRouter()
 
 const htmlCode = ref('')
 const cssCode = ref('')
@@ -36,242 +37,278 @@ const projectMeta = reactive({
   created: null,
   isForked: null
 })
+
+//elements
+const codeAreaEl = ref(null)
+const codePaneEl = ref(null)
+const htmlViewerEl = ref(null)
+const projectDetailsEl = ref(null)
+
+const projectInfo = useProjectInfo()
+const navButtons = useNavButton()
 const isShowDetail = ref(false)
+
+const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
+const getMonth = new Date().getMonth()
+const getYear = new Date().getFullYear()
+const nanoId = customAlphabet('1234567890abcdef', 5)
+const generateId = `${nanoId()}${getMonth}${getYear}`
+const projectId = route.params.id ? route.params.id : generateId
+
+let codeAreaSplit
+let codeAreaVerticalSplit
+//Method
+const saveToDb = async (collection, title, code) => {
+  await setDoc(doc(db, collection, title), code)
+}
+//This codeSaver function is holding Save and Update function
+const codeSaver = () => {
+  const dateCreated = new Date()
+  const dataProject = {
+    projectId: projectId,
+    projectTitle: projectInfo.projectTitle,
+    projectAuthor: userName.value,
+    projectAuthorId: userId.value,
+    projectAuthorPhoto: userPhotoUrl.value,
+    originAuthorMeta: {
+      isForked: project.originAuthorMeta.isForked ? true : false,
+      logs: [...project.originAuthorMeta.logs]
+    },
+    dateCreated: project.dateCreated ? project.dateCreated : dateCreated,
+    code: {
+      html: htmlCode.value,
+      css: cssCode.value,
+      js: jsCode.value
+    }
+  }
+  if (isLoggedIn.value) {
+    if (projectInfo.projectTitle) {
+      const projectAuthorId = project.projectAuthorId
+      if (projectAuthorId === userId.value) {
+        if (htmlCode.value || cssCode.value || jsCode.value) {
+          saveToDb('showcase', projectId, dataProject).then(() => {
+            alert('Saved')
+          })
+        } else {
+          alert('Codes are empty, make at least one line code.')
+        }
+      } else {
+        alert(`This is someone else's project, but you can fork it.`)
+      }
+    } else {
+      alert(`Title can't be empty`)
+      return
+    }
+  } else {
+    alert('To save your progress, please login.')
+  }
+}
+const codeRunner = () => {
+  const viewer = htmlViewerEl.value.contentWindow.document
+  viewer.open()
+  viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
+  viewer.close()
+}
+const codeDelete = async () => {
+  const isDelete = confirm('Delete?')
+  if (isDelete) {
+    if (userId.value === project.projectAuthorId) {
+      await deleteDoc(doc(db, 'showcase', route.params.id))
+        .then(() => {
+          router.replace('/')
+        })
+        .catch((err) => {
+          console.log(`Delete failed! : ${err}`)
+        })
+    } else {
+      alert(`You can't delete this project.`)
+    }
+  }
+}
+const codeFork = () => {
+  const dateCreated = new Date()
+  const originalCodeMeta = {
+    projectId: generateId,
+    projectTitle: projectInfo.projectTitle,
+    projectAuthor: userName.value,
+    projectAuthorId: userId.value,
+    projectAuthorPhoto: userPhotoUrl.value,
+    originAuthorMeta: {
+      isForked: true,
+      logs: [
+        ...project.originAuthorMeta.logs,
+        {
+          name: userName.value,
+          id: generateId,
+          photo: userPhotoUrl.value,
+          url: `/code/${generateId}`
+        }
+      ]
+    },
+    dateCreated,
+    code: {
+      html: htmlCode.value,
+      css: cssCode.value,
+      js: jsCode.value
+    }
+  }
+  const isFork = confirm('Fork This?')
+  if (isLoggedIn.value) {
+    if (isFork) {
+      saveToDb('showcase', generateId, originalCodeMeta).then(() => {
+        alert('Forked.')
+        location.replace(`/code/${generateId}`)
+      })
+    }
+  } else {
+    alert('To fork this project, please login.')
+  }
+}
+const codeInfo = () => {
+  isShowDetail.value = !isShowDetail.value
+}
+const detailOpen = () => {
+  codeInfo()
+  if (innerWidth <= 850) {
+    projectDetailsEl.value.style.marginTop = `${navButtons.buttonArea.offsetHeight}px`
+  }
+}
+const codeAreaCollapse = () => {
+  const codePane = codePaneEl.value
+  const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
+  const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
+  if (isCodePaneAtBottom) {
+    const isCollapsed = codeAreaSplit.getSizes()[0] > 1
+    !isCollapsed ? codeAreaSplit.setSizes([50, 50]) : codeAreaSplit.setSizes([100, 0])
+  } else if (!isCodePaneAtBottom) {
+    const isCollapsed = codeAreaSplit.getSizes()[0] <= 1
+    if (isCodePaneAtRight) {
+      !isCollapsed ? codeAreaSplit.collapse(1) : codeAreaSplit.setSizes([50, 50])
+    } else {
+      !isCollapsed ? codeAreaSplit.collapse(0) : codeAreaSplit.setSizes([50, 50])
+    }
+  }
+}
+const changeViewVertical = () => {
+  //To change the view of codePane, we need to destroy Split Js first
+  if (codeAreaSplit) {
+    codeAreaSplit.destroy()
+    codeAreaVerticalSplit.destroy()
+  }
+  changeCodePositionVerticalMode()
+  //Then we reinitialized it
+  setTimeout(() => {
+    reInitializeSplitJs('vertical')
+    reInitializeSplitJsHorizontal('horizontal')
+  }, 0)
+}
+const changeViewHorizontal = () => {
+  //To change the view of codePane, we need to destroy Split Js first
+  if (codeAreaSplit) {
+    codeAreaSplit.destroy()
+    codeAreaVerticalSplit.destroy()
+  }
+  changeCodePositionHorizontalMode()
+  //Then we reinitialized it
+  setTimeout(() => {
+    reInitializeSplitJs('horizontal')
+    reInitializeSplitJsHorizontal('vertical')
+  }, 0)
+}
+const closeDetailOutside = (e) => {
+  if (!e.target.closest('.projectDetails') && !e.target.closest('.detailsProject')) {
+    isShowDetail.value = false
+  }
+}
+const reInitializeSplitJs = (direction) => {
+  codeAreaSplit = Split(['.codeArea', '.codeViewer'], {
+    gutterSize: 4,
+    minSize: 0,
+    direction
+  })
+}
+const reInitializeSplitJsHorizontal = (direction) => {
+  codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
+    gutterSize: 4,
+    minSize: [0, 0, 0],
+    direction
+  })
+}
+
+const changeCodePositionVerticalMode = () => {
+  const codePane = codePaneEl.value
+  const codeArea = codeAreaEl.value
+  codePane.classList.remove('codePaneChangeViewHorizontal')
+  codePane.classList.remove('codePaneHorizontalStatePos')
+  codePane.classList.toggle('codePaneChangeViewVertical')
+  codeArea.classList.remove('codeAreaOnHorizontalFlex')
+}
+const changeCodePositionHorizontalMode = () => {
+  const codePane = codePaneEl.value
+  const codeArea = codeAreaEl.value
+  codePane.classList.remove('codePaneChangeViewVertical')
+  codePane.classList.add('codePaneHorizontalStatePos')
+  codePane.classList.toggle('codePaneChangeViewHorizontal')
+  codeArea.classList.add('codeAreaOnHorizontalFlex')
+}
+
+const keyListener = (e) => {
+  if (e.key === '.' && e.ctrlKey) {
+    codeRunner()
+  }
+  if (e.ctrlKey && e.key === '0') {
+    codeAreaCollapse()
+  }
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault()
+    codeSaver()
+  }
+}
+
+const loader = ({ docSnap }) => {
+  project = docSnap.data()
+  projectInfo.$patch({ projectTitle: docSnap.data().projectTitle })
+  projectMeta.author = docSnap.data().projectAuthor
+  projectMeta.title = docSnap.data().projectTitle
+  projectMeta.created = docSnap.data().dateCreated.toDate()
+  projectMeta.isForked = docSnap.data().originAuthorMeta.isForked ? 'True' : 'False'
+  const { projectTitle } = project
+  const { html, css, js } = project.code
+  htmlCode.value = html
+  cssCode.value = css
+  jsCode.value = js
+  projectInfo.$patch({ projectTitle: projectTitle })
+}
+
 onMounted(async () => {
   const docRef = doc(db, 'showcase', route.params.id)
   const docSnap = await getDoc(docRef)
-  const projectTitleEl = document.querySelector('.projectTitle')
-  const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
-  const getMonth = new Date().getMonth()
-  const getYear = new Date().getFullYear()
-  const nanoId = customAlphabet('1234567890abcdef', 5)
-  const generateId = `${nanoId()}${getMonth}${getYear}`
-  const projectId = route.params.id ? route.params.id : generateId
-
   if (docSnap.exists()) {
-    project = docSnap.data()
-    projectMeta.author = docSnap.data().projectAuthor
-    projectMeta.title = docSnap.data().projectTitle
-    projectMeta.created = docSnap.data().dateCreated.toDate()
-    projectMeta.isForked = docSnap.data().originAuthorMeta.isForked ? 'True' : 'False'
-    const { projectTitle } = project
-    const { html, css, js } = project.code
-    htmlCode.value = html
-    cssCode.value = css
-    jsCode.value = js
-    projectTitleEl.value = projectTitle
+    loader({ docSnap })
   } else {
     console.log('No such document.')
   }
 
-  let codeAreaVerticalSplit
   codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
     minSize: [0, 0, 0],
     gutterSize: 4,
     direction: 'horizontal'
   })
 
-  let codeAreaSplit
   codeAreaSplit = Split(['.codeArea', '.codeViewer'], {
     direction: 'vertical',
     gutterSize: 4,
     minSize: 0
   })
 
-  const viewer = document.querySelector('#htmlViewer').contentWindow.document
-  const runner = document.querySelector('#runner')
-  const collapseMenu = document.querySelector('#collapseMenu')
-  const codePaneButtonVertical = document.querySelector('.codeViewVertical')
-  const codePaneButtonHorizontal = document.querySelector('.codeViewHorizontal')
-  const codePane = document.querySelector('.codePane')
-  const codeArea = document.querySelector('.codeArea')
-  const projectTitle = document.querySelector('.projectTitle')
-  const saveButton = document.querySelector('.saveProject')
-  const deleteButton = document.querySelector('.deleteProject')
-  const forkButton = document.querySelector('.forkProject')
-  const detailButton = document.querySelector('.detailsProject')
-  const buttonArea = document.querySelector('.buttonArea')
-
-  const codeRunner = () => {
-    viewer.open()
-    viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
-    viewer.close()
-  }
-  const saveToDb = async (collection, title, code) => {
-    await setDoc(doc(db, collection, title), code)
-  }
-
-  //This codeSaver function is holding Save and Update function, I wish i could refactor this one day.
-  const codeSaver = () => {
-    const dateCreated = new Date()
-    const dataProject = {
-      projectId: projectId,
-      projectTitle: projectTitle.value,
-      projectAuthor: userName.value,
-      projectAuthorId: userId.value,
-      projectAuthorPhoto: userPhotoUrl.value,
-      originAuthorMeta: {
-        isForked: project.originAuthorMeta.isForked ? true : false,
-        logs: [...project.originAuthorMeta.logs]
-      },
-      dateCreated: project.dateCreated ? project.dateCreated : dateCreated,
-      code: {
-        html: htmlCode.value,
-        css: cssCode.value,
-        js: jsCode.value
-      }
-    }
-    if (isLoggedIn.value) {
-      if (projectTitle.value) {
-        const projectAuthorId = project.projectAuthorId
-        if (projectAuthorId === userId.value) {
-          if (htmlCode.value || cssCode.value || jsCode.value) {
-            saveToDb('showcase', projectId, dataProject).then(() => {
-              alert('Saved')
-              if (route.params.id !== projectId) {
-                location.replace(`/code/${projectId}`)
-              }
-            })
-          } else {
-            alert('Codes are empty, make at least one line code.')
-          }
-        } else {
-          alert(`This is someone else's project, but you can fork it.`)
-        }
-      } else {
-        alert(`Title can't be empty`)
-        return
-      }
-    } else {
-      alert('To save your progress, please login.')
-    }
-  }
-  const codeDelete = async () => {
-    const isDelete = confirm('Delete?')
-    if (isDelete) {
-      if (userId.value === project.projectAuthorId) {
-        await deleteDoc(doc(db, 'showcase', route.params.id))
-          .then(() => {
-            location.replace('/')
-          })
-          .catch((err) => {
-            console.log(`Delete failed! : ${err}`)
-          })
-      } else {
-        alert(`You can't delete this project.`)
-      }
-    }
-  }
-  const codeFork = () => {
-    const dateCreated = new Date()
-    const originalCodeMeta = {
-      projectId: generateId,
-      projectTitle: projectTitle.value,
-      projectAuthor: userName.value,
-      projectAuthorId: userId.value,
-      projectAuthorPhoto: userPhotoUrl.value,
-      originAuthorMeta: {
-        isForked: true,
-        logs: [
-          ...project.originAuthorMeta.logs,
-          {
-            name: userName.value,
-            id: generateId,
-            photo: userPhotoUrl.value,
-            url: `/code/${generateId}`
-          }
-        ]
-      },
-      dateCreated,
-      code: {
-        html: htmlCode.value,
-        css: cssCode.value,
-        js: jsCode.value
-      }
-    }
-    const isFork = confirm('Fork This?')
-    if (isLoggedIn.value) {
-      if (isFork) {
-        saveToDb('showcase', generateId, originalCodeMeta).then(() => {
-          alert('Forked.')
-          location.replace(`/code/${generateId}`)
-        })
-      }
-    } else {
-      alert('To fork this project, please login.')
-    }
-  }
-  const codeInfo = () => {
-    isShowDetail.value = !isShowDetail.value
-  }
-  const codeAreaCollapse = () => {
-    const isCodePaneAtBottom = codePane.className.includes('codePaneChangeViewVertical')
-    const isCodePaneAtRight = codePane.className.includes('codePaneChangeViewHorizontal')
-    if (isCodePaneAtBottom) {
-      const isCollapsed = codeAreaSplit.getSizes()[0] > 1
-      !isCollapsed ? codeAreaSplit.setSizes([50, 50]) : codeAreaSplit.setSizes([100, 0])
-    } else if (!isCodePaneAtBottom) {
-      const isCollapsed = codeAreaSplit.getSizes()[0] <= 1
-      if (isCodePaneAtRight) {
-        !isCollapsed ? codeAreaSplit.collapse(1) : codeAreaSplit.setSizes([50, 50])
-      } else {
-        !isCollapsed ? codeAreaSplit.collapse(0) : codeAreaSplit.setSizes([50, 50])
-      }
-    }
-  }
-  const changeViewVertical = () => {
-    //To change the view of codePane, we need to destroy Split Js first
-    if (codeAreaSplit) {
-      codeAreaSplit.destroy()
-      codeAreaVerticalSplit.destroy()
-    }
-    changeCodePositionVerticalMode()
-    //Then we reinitialized it
-    setTimeout(() => {
-      reInitializeSplitJs('vertical')
-      reInitializeSplitJsHorizontal('horizontal')
-    }, 0)
-  }
-  const changeViewHorizontal = () => {
-    //To change the view of codePane, we need to destroy Split Js first
-    if (codeAreaSplit) {
-      codeAreaSplit.destroy()
-      codeAreaVerticalSplit.destroy()
-    }
-    changeCodePositionHorizontalMode()
-    //Then we reinitialized it
-    setTimeout(() => {
-      reInitializeSplitJs('horizontal')
-      reInitializeSplitJsHorizontal('vertical')
-    }, 0)
-  }
-
-  const reInitializeSplitJs = (direction) => {
-    codeAreaSplit = Split(['.codeArea', '.codeViewer'], {
-      gutterSize: 4,
-      minSize: 0,
-      direction
-    })
-  }
-  const reInitializeSplitJsHorizontal = (direction) => {
-    codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
-      gutterSize: 4,
-      minSize: [0, 0, 0],
-      direction
-    })
-  }
-  const changeCodePositionVerticalMode = () => {
-    codePane.classList.remove('codePaneChangeViewHorizontal')
-    codePane.classList.remove('codePaneHorizontalStatePos')
-    codePane.classList.toggle('codePaneChangeViewVertical')
-    codeArea.classList.remove('codeAreaOnHorizontalFlex')
-  }
-  const changeCodePositionHorizontalMode = () => {
-    codePane.classList.remove('codePaneChangeViewVertical')
-    codePane.classList.add('codePaneHorizontalStatePos')
-    codePane.classList.toggle('codePaneChangeViewHorizontal')
-    codeArea.classList.add('codeAreaOnHorizontalFlex')
-  }
+  const collapseMenu = navButtons.collapseMenu
+  const runner = navButtons.codeRunner
+  const codePaneButtonVertical = navButtons.codePaneButtonVertical
+  const codePaneButtonHorizontal = navButtons.codePaneButtonHorizontal
+  const saveButton = navButtons.saveButton
+  const forkButton = navButtons.forkButton
+  const deleteButton = navButtons.deleteButton
+  const detailButton = navButtons.detailButton
 
   //Button listener
   collapseMenu.addEventListener('click', codeAreaCollapse)
@@ -281,41 +318,43 @@ onMounted(async () => {
   saveButton.addEventListener('click', codeSaver)
   deleteButton.addEventListener('click', codeDelete)
   forkButton.addEventListener('click', codeFork)
-  detailButton.addEventListener('click', () => {
-    codeInfo()
-    if (innerWidth <= 850) {
-      document.querySelector('.projectDetails').style.marginTop = `${buttonArea.offsetHeight}px`
-    }
-  })
-
+  detailButton.addEventListener('click', detailOpen)
+  document.addEventListener('click', closeDetailOutside)
   //Key listener
-  document.addEventListener('keydown', (e) => {
-    if (e.key === '.' && e.ctrlKey) {
-      codeRunner()
-    }
-    if (e.ctrlKey && e.key === '0') {
-      codeAreaCollapse()
-    }
-    if (e.ctrlKey && e.key === 's') {
-      e.preventDefault()
-      codeSaver()
-    }
-  })
+  document.addEventListener('keydown', keyListener)
   //after CodeView opened
   setTimeout(() => {
     codeRunner()
   }, 100)
   projectLogs = project.originAuthorMeta.logs
 })
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('.projectDetails') && !e.target.closest('.detailsProject')) {
-    isShowDetail.value = false
-  }
+onUnmounted(() => {
+  const runner = navButtons.codeRunner
+  const codePaneButtonVertical = navButtons.codePaneButtonVertical
+  const codePaneButtonHorizontal = navButtons.codePaneButtonHorizontal
+  const saveButton = navButtons.saveButton
+  const deleteButton = navButtons.deleteButton
+  const forkButton = navButtons.forkButton
+  const detailButton = navButtons.detailButton
+  const collapseMenu = navButtons.collapseMenu
+
+  collapseMenu.removeEventListener('click', codeAreaCollapse)
+  runner.removeEventListener('click', codeRunner)
+  codePaneButtonVertical.removeEventListener('click', changeViewVertical)
+  codePaneButtonHorizontal.removeEventListener('click', changeViewHorizontal)
+  saveButton.removeEventListener('click', codeSaver)
+  forkButton.removeEventListener('click', () => {
+    codeFork()
+    loader({ docSnap })
+  })
+  deleteButton.removeEventListener('click', codeDelete)
+  detailButton.removeEventListener('click', detailOpen)
+  // document.removeEventListener('click', closeDetailOutside)
+  document.removeEventListener('keydown', keyListener)
 })
 </script>
 <template>
-  <NavMenuForCoding />
-  <div class="projectDetails" v-show="isShowDetail">
+  <div ref="projectDetailsEl" class="projectDetails" v-show="isShowDetail">
     <div class="title">
       <span>Project Title :</span>
       <p>{{ projectMeta.title }}</p>
@@ -338,8 +377,8 @@ document.addEventListener('click', (e) => {
     </ul>
   </div>
   <main>
-    <div class="codePane">
-      <div class="codeArea split">
+    <div class="codePane" ref="codePaneEl">
+      <div class="codeArea split" ref="codeAreaEl">
         <div id="html" class="htmlArea">
           <h3>
             <font-awesome-icon icon="fa-brands fa-html5" />
@@ -360,7 +399,7 @@ document.addEventListener('click', (e) => {
         </div>
       </div>
       <div class="codeViewer">
-        <iframe id="htmlViewer" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-downloads allow-presentation"></iframe>
+        <iframe ref="htmlViewerEl" id="htmlViewer" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-downloads allow-presentation"></iframe>
       </div>
     </div>
   </main>
