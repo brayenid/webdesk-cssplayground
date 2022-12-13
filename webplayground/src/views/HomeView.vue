@@ -121,7 +121,7 @@ onUnmounted(() => {
     <div class="project" v-for="project in showcase">
       <div class="projectItem">
         <div class="authorProfilePhoto">
-          <a :href="`/code/${project.id}`"><img :src="project.authorPhoto" :alt="project.author" /></a>
+          <RouterLink :to="`/code/${project.id}`"><img :src="project.authorPhoto" :alt="project.author" /></RouterLink>
         </div>
         <div class="projectTitle">
           <RouterLink :to="`/code/${project.id}`">{{ project.title }}</RouterLink>
