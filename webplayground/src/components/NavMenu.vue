@@ -119,9 +119,12 @@ nav {
 }
 .menuList a {
   text-decoration: none;
-  color: #fff;
+  color: #ccc;
   display: block;
   padding: 1.5rem 0;
+}
+.menuList a:hover {
+  color: #fff;
 }
 button {
   border: none;
@@ -144,7 +147,7 @@ button {
   background-color: rgb(208, 46, 46);
 }
 .writeCode a {
-  color: #eee;
+  color: #ccc;
   border-radius: 0.3rem;
   font-size: 1.2rem;
   padding: 1rem 0;
@@ -160,7 +163,10 @@ button {
   background-color: transparent;
   font-size: 1.2rem;
   padding: 1rem 0;
-  color: #eee;
+  color: #ccc;
+}
+.loadProgress button:hover {
+  color: #fff;
 }
 .loadProgress .progressList {
   max-width: 300px;
