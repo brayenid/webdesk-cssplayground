@@ -1,19 +1,19 @@
 <script setup>
-import { GoogleAuthProvider, signInWithPopup, signOut, getAuth, onAuthStateChanged } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup, signOut, getAuth } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
 import { useAuthState } from '../stores/auth'
 import tippy from 'tippy.js'
 
 const authenticated = useAuthState()
 const showPopUp = ref(false)
+const googleSignIn = ref(null)
 
 onMounted(() => {
-  const buttonGoogle = document.querySelectorAll('.buttonGoogle')
-  buttonGoogle.forEach((button) => {
-    tippy(button, {
-      content: button.dataset.title
+  if (!authenticated.isLoggedIn) {
+    tippy(googleSignIn.value, {
+      content: 'Sign In with Google'
     })
-  })
+  }
 })
 
 const provider = new GoogleAuthProvider()
@@ -39,7 +39,7 @@ document.addEventListener('click', (e) => {
 
 <template>
   <div>
-    <button v-if="!authenticated.isLoggedIn" data-title="Login with Google" class="googleSignIn buttonGoogle" @click="signInGoogle"><font-awesome-icon icon="fa-brands fa-google" /></button>
+    <button ref="googleSignIn" v-if="!authenticated.isLoggedIn" class="googleSignIn buttonGoogle" @click="signInGoogle"><font-awesome-icon icon="fa-brands fa-google" /></button>
     <div class="hiUser" v-if="authenticated.isLoggedIn">
       <div class="signOutContainer" v-show="showPopUp">
         <h3 class="displayName">Hello, {{ getAuth().currentUser.displayName }}</h3>

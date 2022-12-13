@@ -1,28 +1,44 @@
 <script setup>
 import tippy from 'tippy.js'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onUnmounted } from 'vue'
 import GoogleLogin from './GoogleLogin.vue'
+import { useLoadButton } from '../stores/project'
+import { useAuthState } from '../stores/auth'
+
+const auth = useAuthState()
+
+const loadButton = useLoadButton()
+
 const menuList = ref(null)
 const toggleMenu = ref(null)
+const loadProgress = ref(null)
+
+const closeMenu = (e) => {
+  if (!e.target.closest('.toggleMenuIndex') && !e.target.closest('.menuList')) {
+    menuList.value.classList.remove('menuListAppear')
+  }
+}
+const toggleMenuClick = () => {
+  menuList.value.classList.toggle('menuListAppear')
+}
 
 onMounted(() => {
-  const signInButton = document.querySelector('.googleSignIn')
+  loadButton.$patch({
+    loadProgress: loadProgress.value
+  })
+
   const writeButton = document.querySelector('.link')
-  const tippyInit = (element, dataset) => {
-    tippy(element, {
-      content: dataset
-    })
-  }
-  tippyInit(signInButton, signInButton.dataset.title)
-  tippyInit(writeButton, writeButton.dataset.title)
-  toggleMenu.value.addEventListener('click', () => {
-    menuList.value.classList.toggle('menuListAppear')
+  tippy(writeButton, {
+    content: writeButton.dataset.title
   })
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.toggleMenuIndex') && !e.target.closest('.menuList')) {
-      menuList.value.classList.remove('menuListAppear')
-    }
+  tippy(loadProgress.value, {
+    content: 'Load Your Projects'
   })
+  toggleMenu.value.addEventListener('click', toggleMenuClick)
+  document.addEventListener('click', closeMenu)
+})
+onUnmounted(() => {
+  document.removeEventListener('click', closeMenu)
 })
 </script>
 <template>
@@ -30,7 +46,7 @@ onMounted(() => {
     <nav>
       <div class="navWrap">
         <div class="titleAndMenu">
-          <a href="/"> <img src="@/assets/websdeck.webp" alt="" /></a>
+          <RouterLink to="/"> <img src="@/assets/websdeck.webp" alt="" /></RouterLink>
           <ul ref="menuList" class="menuList">
             <li><RouterLink to="/about">About</RouterLink></li>
             <li><RouterLink to="/attribution">Attribution</RouterLink></li>
@@ -38,8 +54,11 @@ onMounted(() => {
           <button ref="toggleMenu" class="toggleMenuIndex"><font-awesome-icon icon="fa-solid fa-bars" /></button>
         </div>
         <div class="writeAndAccount">
+          <div v-show="auth.isLoggedIn" class="loadProgress">
+            <button ref="loadProgress" class="loadButton" data-title="Load Progress"><font-awesome-icon icon="fa-solid fa-file-code" /></button>
+          </div>
           <div class="writeCode">
-            <a class="link" data-title="Write code" href="/code"><font-awesome-icon icon="fa-solid fa-pen" /></a>
+            <RouterLink class="link" data-title="Write code" to="/code"><font-awesome-icon icon="fa-solid fa-pen" /></RouterLink>
           </div>
           <GoogleLogin />
         </div>
@@ -114,7 +133,7 @@ button {
 }
 .writeAndAccount {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   align-items: center;
 }
 .googleSignIn {
@@ -128,7 +147,7 @@ button {
   color: #eee;
   border-radius: 0.3rem;
   font-size: 1.2rem;
-  padding: 1rem;
+  padding: 1rem 0;
 }
 .writeCode a:hover {
   color: #fff;
@@ -136,6 +155,19 @@ button {
 .toggleMenuIndex {
   background-color: transparent;
   font-size: 1.5rem;
+}
+.loadProgress button {
+  background-color: transparent;
+  font-size: 1.2rem;
+  padding: 1rem 0;
+  color: #eee;
+}
+.loadProgress .progressList {
+  max-width: 300px;
+  height: auto;
+  position: absolute;
+  top: 4rem;
+  background-color: #222;
 }
 @media screen and (min-width: 700px) {
   .menuList {

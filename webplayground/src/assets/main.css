@@ -17,6 +17,14 @@
   -ms-border-radius: 10px;
   -o-border-radius: 10px;
 }
+/* Step 1: Common Properties
+  These styles are required to make icons render reliably */
+.icon::before {
+  display: inline-block;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
 a {
   text-decoration: none;
 }
