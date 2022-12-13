@@ -67,7 +67,6 @@ const closeModal = (e) => {
 const isAnyProject = computed(() => {
   return projectByUserId.value.length < 1
 })
-console.log(isAnyProject.value)
 onMounted(() => {
   const loadButton = useLoadButton().loadProgress
   loadButton.addEventListener('click', openModal)
@@ -152,7 +151,7 @@ main {
   overflow: hidden;
 }
 h2 {
-  color: #fff;
+  color: #eee;
   font-size: 1.5rem;
   text-align: center;
   margin: 1rem 0 3rem;
@@ -169,6 +168,10 @@ h2 {
   margin-bottom: 0.3rem;
   font-weight: 500;
   line-height: 1.3rem;
+  color: #ddd;
+}
+.projectTitle a:hover {
+  color: #fff;
 }
 .projectTitle p {
   margin: 0.5rem 0;
