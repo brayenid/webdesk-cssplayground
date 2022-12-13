@@ -270,4 +270,11 @@ h2 {
 .noProjectLoad .link {
   margin-top: 0.5rem;
 }
+@media screen and (min-width: 700px) {
+  .loadProjects .list {
+    width: 500px;
+    box-sizing: border-box;
+    line-height: 2rem;
+  }
+}
 </style>
