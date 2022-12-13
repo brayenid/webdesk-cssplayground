@@ -4,8 +4,10 @@ import { onMounted, ref, onUnmounted } from 'vue'
 import GoogleLogin from './GoogleLogin.vue'
 import { useLoadButton } from '../stores/project'
 import { useAuthState } from '../stores/auth'
+import { useRoute } from 'vue-router'
 
 const auth = useAuthState()
+const route = useRoute()
 
 const loadButton = useLoadButton()
 
@@ -54,10 +56,10 @@ onUnmounted(() => {
           <button ref="toggleMenu" class="toggleMenuIndex"><font-awesome-icon icon="fa-solid fa-bars" /></button>
         </div>
         <div class="writeAndAccount">
-          <div v-show="auth.isLoggedIn" class="loadProgress">
+          <div v-show="auth.isLoggedIn && route.name === 'home'" class="loadProgress">
             <button ref="loadProgress" class="loadButton" data-title="Load Progress"><font-awesome-icon icon="fa-solid fa-file-code" /></button>
           </div>
-          <div class="writeCode">
+          <div class="writeCode" v-show="route.name === 'home'">
             <RouterLink class="link" data-title="Write code" to="/code"><font-awesome-icon icon="fa-solid fa-pen" /></RouterLink>
           </div>
           <GoogleLogin />
