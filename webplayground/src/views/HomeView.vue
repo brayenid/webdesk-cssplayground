@@ -49,7 +49,7 @@ const addLimit = ({ limitNumber }) => {
 }
 const getProjectByUserId = async (userId) => {
   let data = []
-  const q = query(collection(db, 'showcase'), where('projectAuthorId', '==', userId))
+  const q = query(collection(db, 'showcase'), where('projectAuthorId', '==', userId), orderBy('dateCreated', 'desc'))
   const querySnapshot = await getDocs(q)
   querySnapshot.forEach((project) => {
     data.push(project.data())
