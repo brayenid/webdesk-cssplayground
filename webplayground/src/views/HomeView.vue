@@ -109,7 +109,7 @@ onUnmounted(() => {
     <div v-show="isLoading" class="loading">
       <EyesLoading />
     </div>
-    <div class="project" v-for="project in showcase">
+    <div class="project" v-for="project in showcase" :key="project.id">
       <div class="projectItem">
         <div class="authorProfilePhoto">
           <RouterLink :to="`/code/${project.id}`"><img :src="project.authorPhoto" :alt="project.author" /></RouterLink>
