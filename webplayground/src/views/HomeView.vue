@@ -42,9 +42,9 @@ const getDatas = async (number, sortBy) => {
   })
   showcase.value = data
 }
-const addLimit = ({ limitNumber }) => {
+const addLimit = ({ limitNumber, sortByDate }) => {
   limitPost.value += limitNumber
-  getDatas(limitPost.value)
+  getDatas(limitPost.value, sortByDate)
   if (limitPost.value >= databaseLength) {
     isReachFullPosts.value = true
   }
@@ -121,7 +121,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-    <button @click="addLimit({ limitNumber: 8 })" v-if="!isReachFullPosts && isShowLoader" class="load">Load</button>
+    <button @click="addLimit({ limitNumber: 8, sortByDate: sortByDate })" v-if="!isReachFullPosts && isShowLoader" class="load">Load</button>
   </main>
 </template>
 <style scoped>
