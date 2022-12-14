@@ -51,7 +51,7 @@ const route = useRoute()
   <header>
     <nav>
       <div class="titleAndMenu">
-        <RouterLink to="/"> <img src="@/assets/websdeck.webp" alt="" /></RouterLink>
+        <RouterLink to="/"> <img src="@/assets/websdeck.webp" alt="Websdeck logo" /></RouterLink>
       </div>
       <ul class="buttonArea" v-show="isShowPlayMenu" ref="buttonArea">
         <li>

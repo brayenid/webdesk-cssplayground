@@ -48,7 +48,7 @@ onUnmounted(() => {
     <nav>
       <div class="navWrap">
         <div class="titleAndMenu">
-          <RouterLink to="/"> <img src="@/assets/websdeck.webp" alt="" /></RouterLink>
+          <RouterLink to="/"> <img src="@/assets/websdeck.webp" alt="Websdeck logo" /></RouterLink>
           <ul ref="menuList" class="menuList">
             <li><RouterLink to="/about">About</RouterLink></li>
             <li><RouterLink to="/attribution">Attribution</RouterLink></li>
