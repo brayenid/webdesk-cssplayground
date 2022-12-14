@@ -1,4 +1,6 @@
 <script setup>
+import ProjectDetail from '../components/ProjectDetail.vue'
+
 import { onMounted, reactive, ref, onUnmounted } from 'vue'
 import Split from 'split.js'
 import { PrismEditor } from 'vue-prism-editor'
@@ -51,7 +53,7 @@ const isShowDetail = ref(false)
 const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
 const getMonth = new Date().getMonth()
 const getYear = new Date().getFullYear()
-const nanoId = customAlphabet('1234567890abcdef', 5)
+const nanoId = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 5)
 const generateId = `${nanoId()}${getMonth}${getYear}`
 const projectId = route.params.id ? route.params.id : generateId
 
@@ -234,7 +236,6 @@ const reInitializeSplitJsHorizontal = (direction) => {
     direction
   })
 }
-
 const changeCodePositionVerticalMode = () => {
   const codePane = codePaneEl.value
   const codeArea = codeAreaEl.value
@@ -251,7 +252,6 @@ const changeCodePositionHorizontalMode = () => {
   codePane.classList.toggle('codePaneChangeViewHorizontal')
   codeArea.classList.add('codeAreaOnHorizontalFlex')
 }
-
 const keyListener = (e) => {
   if (e.key === '.' && e.ctrlKey) {
     codeRunner()
@@ -264,7 +264,6 @@ const keyListener = (e) => {
     codeSaver()
   }
 }
-
 const loader = ({ docSnap }) => {
   project = docSnap.data()
   projectInfo.$patch({ projectTitle: docSnap.data().projectTitle })
@@ -279,7 +278,6 @@ const loader = ({ docSnap }) => {
   jsCode.value = js
   projectInfo.$patch({ projectTitle: projectTitle })
 }
-
 onMounted(async () => {
   const docRef = doc(db, 'showcase', route.params.id)
   const docSnap = await getDoc(docRef)
@@ -288,7 +286,6 @@ onMounted(async () => {
   } else {
     console.log('No such document.')
   }
-
   codeAreaVerticalSplit = Split(['#html', '#css', '#js'], {
     minSize: [0, 0, 0],
     gutterSize: 4,
@@ -328,6 +325,7 @@ onMounted(async () => {
   }, 100)
   projectLogs = project.originAuthorMeta.logs
 })
+
 onUnmounted(() => {
   const runner = navButtons.codeRunner
   const codePaneButtonVertical = navButtons.codePaneButtonVertical
@@ -354,27 +352,8 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <div ref="projectDetailsEl" class="projectDetails" v-show="isShowDetail">
-    <div class="title">
-      <span>Project Title :</span>
-      <p>{{ projectMeta.title }}</p>
-    </div>
-    <div class="author">
-      <span>Project Author :</span>
-      <p>{{ projectMeta.author }}</p>
-    </div>
-    <div class="created">
-      <span>Created At :</span>
-      <p>{{ projectMeta.created }}</p>
-    </div>
-    <div class="isForked">
-      <span>Forked :</span>
-      <p>{{ projectMeta.isForked }}</p>
-    </div>
-    <span>Forked Logs :</span>
-    <ul class="forkedLogs">
-      <li v-for="meta in projectLogs"><img :src="meta.photo" alt="" />{{ meta.name }} <a :href="meta.url"> >> </a></li>
-    </ul>
+  <div class="detailContainer" ref="projectDetailsEl">
+    <ProjectDetail v-show="isShowDetail" :project-meta="projectMeta" :project-logs="projectLogs" />
   </div>
   <main>
     <div class="codePane" ref="codePaneEl">
@@ -470,39 +449,9 @@ iframe {
   line-height: 1.5;
   padding: 5px;
 }
-.projectDetails {
+.detailContainer {
   position: absolute;
-  width: 100%;
-  max-width: 26rem;
-  height: 100vh;
-  z-index: 30;
   right: 0;
-  background-color: #222;
-  color: #bbb;
-  box-sizing: border-box;
-  padding: 1rem;
-  line-height: 1.5rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-.projectDetails img {
-  width: 20px;
-  height: 20px;
-}
-.projectDetails span {
-  color: #444;
-}
-.title,
-.author,
-.created,
-.isForked {
-  margin-bottom: 1rem;
-}
-.projectDetails ul li {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.forkedLogs li {
-  margin-bottom: 0.3rem;
+  z-index: 30;
 }
 </style>

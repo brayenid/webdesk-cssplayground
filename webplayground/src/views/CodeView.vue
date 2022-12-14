@@ -159,7 +159,6 @@ const reInitializeSplitJsHorizontal = (direction) => {
     direction
   })
 }
-
 const changeCodePositionVerticalMode = () => {
   const codePane = codePaneEl.value
   const codeArea = codeAreaEl.value
@@ -176,7 +175,6 @@ const changeCodePositionHorizontalMode = () => {
   codePane.classList.toggle('codePaneChangeViewHorizontal')
   codeArea.classList.add('codeAreaOnHorizontalFlex')
 }
-
 const keyListener = (e) => {
   if (e.key === '.' && e.ctrlKey) {
     codeRunner()
