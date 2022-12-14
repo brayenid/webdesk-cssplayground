@@ -146,7 +146,7 @@ h2 {
   color: #eee;
   font-size: 1.5rem;
   text-align: center;
-  margin: 1rem 0 3rem;
+  margin: 1rem 0 2rem;
   font-weight: 700;
 }
 .projectTitle {
