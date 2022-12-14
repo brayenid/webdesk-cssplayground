@@ -41,6 +41,7 @@ a:hover {
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
 }
 .loadProjects .contents {
   background-color: #222;
