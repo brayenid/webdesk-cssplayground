@@ -140,7 +140,7 @@ button {
 }
 .writeAndAccount {
   display: flex;
-  gap: 2.5rem;
+  gap: 2rem;
   align-items: center;
 }
 .googleSignIn {
@@ -193,6 +193,12 @@ button {
   }
   .toggleMenuIndex {
     display: none;
+  }
+  .writeAndAccount {
+    gap: 2.5rem;
+  }
+  .titleAndMenu {
+    gap: 1rem;
   }
 }
 </style>
