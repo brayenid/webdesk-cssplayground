@@ -53,14 +53,14 @@ onUnmounted(() => {
             <li><RouterLink to="/about">About</RouterLink></li>
             <li><RouterLink to="/attribution">Attribution</RouterLink></li>
           </ul>
-          <button ref="toggleMenu" class="toggleMenuIndex"><font-awesome-icon icon="fa-solid fa-bars" /></button>
+          <button ref="toggleMenu" class="toggleMenuIndex" aria-label="Open Menu"><font-awesome-icon icon="fa-solid fa-bars" /></button>
         </div>
         <div class="writeAndAccount">
           <div v-show="auth.isLoggedIn && route.name === 'home'" class="loadProgress">
-            <button ref="loadProgress" class="loadButton" data-title="Load Progress"><font-awesome-icon icon="fa-solid fa-file-code" /></button>
+            <button ref="loadProgress" class="loadButton" aria-label="Load Your Projects"><font-awesome-icon icon="fa-solid fa-file-code" /></button>
           </div>
           <div class="writeCode" v-show="route.name === 'home'">
-            <RouterLink class="link" data-title="Write code" to="/code"><font-awesome-icon icon="fa-solid fa-pen" /></RouterLink>
+            <RouterLink class="link" data-title="Write code" to="/code" aria-label="Write Code"><font-awesome-icon icon="fa-solid fa-pen" /></RouterLink>
           </div>
           <GoogleLogin />
         </div>

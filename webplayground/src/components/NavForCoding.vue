@@ -55,34 +55,34 @@ const route = useRoute()
       </div>
       <ul class="buttonArea" v-show="isShowPlayMenu" ref="buttonArea">
         <li>
-          <button ref="collapseMenu" data-title="Code Area Toggle (CTRL+0)" id="collapseMenu" class="codeCollapseExpand"><font-awesome-icon icon="fa-solid fa-code" /></button>
+          <button aria-label="Collapse Code Area" ref="collapseMenu" data-title="Code Area Toggle (CTRL+0)" id="collapseMenu" class="codeCollapseExpand"><font-awesome-icon icon="fa-solid fa-code" /></button>
         </li>
         <li>
-          <button ref="codeRunner" data-title="Run Code (CTRL+.)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
+          <button aria-label="Run Code" ref="codeRunner" data-title="Run Code (CTRL+.)" id="runner" class="codeRunner"><font-awesome-icon icon="fa-solid fa-play"></font-awesome-icon></button>
         </li>
         <li>
-          <button ref="codePaneButtonVertical" data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
+          <button aria-label="Change View Vertical" ref="codePaneButtonVertical" data-title="Change View Vertical" class="codeViewVertical"><font-awesome-icon icon="fa-solid fa-arrows-up-down" /></button>
         </li>
         <li>
-          <button ref="codePaneButtonHorizontal" data-title="Change View Horizontal" class="codeViewHorizontal"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button>
+          <button aria-label="Change View Horizontal" ref="codePaneButtonHorizontal" data-title="Change View Horizontal" class="codeViewHorizontal"><font-awesome-icon icon="fa-solid fa-arrows-left-right" /></button>
         </li>
         <li>
           <input v-model="projectTitle" type="text" class="projectTitle" placeholder="Title" />
         </li>
         <li>
-          <button ref="saveButton" data-title="Save (CTRL+S)" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
+          <button aria-label="Save Project" ref="saveButton" data-title="Save (CTRL+S)" class="saveProject"><font-awesome-icon icon="fa-solid fa-save" /></button>
         </li>
         <li v-show="route.params.id">
-          <button ref="deleteButton" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
+          <button aria-label="Delete Project" ref="deleteButton" data-title="Delete This" class="deleteProject"><font-awesome-icon icon="fa-solid fa-trash" /></button>
         </li>
         <li v-show="route.params.id">
-          <button ref="forkButton" data-title="Fork This" class="forkProject"><font-awesome-icon icon="fa-solid fa-code-fork" /></button>
+          <button aria-label="Fork Project" ref="forkButton" data-title="Fork This" class="forkProject"><font-awesome-icon icon="fa-solid fa-code-fork" /></button>
         </li>
         <li v-show="route.params.id">
-          <button ref="detailButton" data-title="Project Details" class="detailsProject"><font-awesome-icon class="detailsIcon" icon="fa-solid fa-info" /></button>
+          <button aria-label="Project Details" ref="detailButton" data-title="Project Details" class="detailsProject"><font-awesome-icon class="detailsIcon" icon="fa-solid fa-info" /></button>
         </li>
       </ul>
-      <button @click="toggleMenu" class="menuToggle" data-title="Control Menu"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
+      <button aria-label="Control Menu" @click="toggleMenu" class="menuToggle" data-title="Control Menu"><font-awesome-icon icon="fa-solid fa-ellipsis" /></button>
       <GoogleLogin />
     </nav>
   </header>
