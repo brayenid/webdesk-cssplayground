@@ -82,7 +82,7 @@ nav {
   align-items: center;
   box-sizing: border-box;
   padding: 0 1rem;
-  height: 4rem;
+  height: 3.5rem;
 }
 .websdeck {
   font-size: 1.5rem;
@@ -95,7 +95,7 @@ nav {
 }
 .titleAndMenu {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   align-items: center;
 }
 .titleAndMenu img {
@@ -107,7 +107,7 @@ nav {
   position: absolute;
   display: flex;
   width: 100%;
-  top: 3.8rem;
+  top: 3.5rem;
   left: 0;
   flex-direction: column;
   box-sizing: border-box;
@@ -123,7 +123,7 @@ nav {
 }
 .menuList a {
   text-decoration: none;
-  color: #ccc;
+  color: #eee;
   display: block;
   padding: 1.5rem 0;
 }
@@ -140,7 +140,7 @@ button {
 }
 .writeAndAccount {
   display: flex;
-  gap: 2rem;
+  gap: 2.5rem;
   align-items: center;
 }
 .googleSignIn {
@@ -151,7 +151,7 @@ button {
   background-color: rgb(208, 46, 46);
 }
 .writeCode a {
-  color: #ccc;
+  color: #eee;
   border-radius: 0.3rem;
   font-size: 1.2rem;
   padding: 1rem 0;
@@ -162,12 +162,14 @@ button {
 .toggleMenuIndex {
   background-color: transparent;
   font-size: 1.5rem;
+  color: #eee;
+  padding: 0;
 }
 .loadProgress button {
   background-color: transparent;
   font-size: 1.2rem;
   padding: 1rem 0;
-  color: #ccc;
+  color: #eee;
 }
 .loadProgress button:hover {
   color: #fff;
