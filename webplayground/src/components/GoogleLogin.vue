@@ -46,7 +46,7 @@ document.addEventListener('click', (e) => {
         <button @click="signout" data-title="Sign Out" class="signOut buttonGoogle">Sign Out</button>
       </div>
       <div class="userPhotoContainer" @click="showPopUp = !showPopUp">
-        <img class="userPhoto" :src="getAuth().currentUser.photoURL" />
+        <img class="userPhoto" :src="getAuth().currentUser.photoURL" alt="Avatar" />
       </div>
     </div>
   </div>
