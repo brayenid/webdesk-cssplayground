@@ -113,11 +113,13 @@ nav {
   box-sizing: border-box;
   padding: 1rem;
   transform: translateX(-100%);
-  transition: 0.1s ease-in-out;
+  transition: 0.3s ease-in-out;
   z-index: 20;
+  opacity: 0;
 }
 .menuListAppear {
   transform: translate(0);
+  opacity: 1;
 }
 .menuList a {
   text-decoration: none;
@@ -185,6 +187,7 @@ button {
     padding: 1rem;
     transform: translate(0);
     gap: 2rem;
+    opacity: 1;
   }
   .toggleMenuIndex {
     display: none;

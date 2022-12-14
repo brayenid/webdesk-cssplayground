@@ -1,14 +1,16 @@
 <script setup>
+import EyesLoading from '../components/EyesLoading.vue'
+import LoadModal from '../components/LoadModal.vue'
 import { onMounted, ref, onUnmounted, computed } from 'vue'
 import { collection, query, limit, getDocs, getCountFromServer, orderBy, where } from '@firebase/firestore'
 import { db } from '../firebase'
-import EyesLoading from '../components/EyesLoading.vue'
 import { RouterLink } from 'vue-router'
 import { useAuthState } from '../stores/auth'
 import { getAuth, onAuthStateChanged } from '@firebase/auth'
 import { useLoadButton } from '../stores/project'
 
 const showcase = ref([])
+const sortByDate = ref('desc')
 const projectByUserId = ref([])
 const isLoading = ref(true)
 const limitPost = ref(8)
@@ -18,9 +20,9 @@ const getDatabaseLength = collection(db, 'showcase')
 const isShowModalLoad = ref(false)
 let databaseLength
 
-const getDatas = async (number) => {
+const getDatas = async (number, sortBy) => {
   let data = []
-  const q = query(collection(db, 'showcase'), limit(number), orderBy('dateCreated', 'desc'))
+  const q = query(collection(db, 'showcase'), limit(number), orderBy('dateCreated', sortBy))
   const querySnapshot = await getDocs(q)
   querySnapshot.forEach((doc) => {
     const { projectId, projectAuthor, projectTitle, projectAuthorPhoto, originAuthorMeta, code } = doc.data()
@@ -80,8 +82,7 @@ onMounted(() => {
       isReachFullPosts.value = true
     }
   })
-
-  getDatas(limitPost.value).then(() => {
+  getDatas(limitPost.value, sortByDate.value).then(() => {
     isShowLoader.value = true
     isLoading.value = false
   })
@@ -95,24 +96,15 @@ onUnmounted(() => {
 <template>
   <main>
     <h2>Showcase</h2>
+    <div class="sorter">
+      <label for="sorter">Sort By Date :</label>
+      <select v-model="sortByDate" id="sorter" @change="getDatas(limitPost, sortByDate)">
+        <option value="desc">Descending</option>
+        <option value="asc">Ascending</option>
+      </select>
+    </div>
     <Teleport to="body">
-      <div v-show="isShowModalLoad" class="loadProjects">
-        <div class="contents">
-          <h3 v-if="!isAnyProject">Load Your Projects :</h3>
-          <ol class="list">
-            <li v-for="item in projectByUserId" :key="item">
-              <div class="liCon">
-                <font-awesome-icon icon="fa-solid fa-file" />
-              </div>
-              <RouterLink :to="`/code/${item.projectId}`">{{ item.projectTitle }}</RouterLink>
-            </li>
-            <div class="noProjectLoad" v-if="isAnyProject">
-              <p>No Project Found</p>
-              <p class="link"><RouterLink to="/code">Make One!</RouterLink></p>
-            </div>
-          </ol>
-        </div>
-      </div>
+      <LoadModal v-show="isShowModalLoad" :data="projectByUserId" :is-any-project="isAnyProject" title="Load Your Projects" />
     </Teleport>
     <div v-show="isLoading" class="loading">
       <EyesLoading />
@@ -212,72 +204,20 @@ h2 {
   margin-left: 1rem;
   color: rgb(12, 110, 195);
 }
-.root {
-  position: relative;
+.sorter {
+  margin: 1.5rem 0;
+  text-align: right;
+  color: #aaa;
+  font-size: 0.8rem;
 }
-.loadProjects {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-}
-.loadProjects .contents {
+.sorter select {
   background-color: #222;
-  padding: 2rem;
+  border: 1px solid #111;
+  color: #aaa;
+  padding: 0.3rem;
   border-radius: 0.3rem;
 }
-.loadProjects .contents h3 {
-  margin-bottom: 2rem;
-  color: #aaa;
-}
-.loadProjects .list {
-  width: 100%;
-  max-width: 500px;
-  box-sizing: border-box;
-  line-height: 2rem;
-}
-.loadProjects .list li {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 1.2rem;
-}
-.loadProjects .list li:last-child {
-  border-bottom: none;
-}
-.loadProjects .list li a {
-  color: #ddd;
-}
-.loadProjects .list li a:hover {
-  color: #fff;
-}
-.liCon {
-  color: #666;
-}
-.noProjectLoad {
-  text-align: center;
-  color: #aaa;
-  font-size: 0.9rem;
-}
-.noProjectLoad a {
-  background-color: #333;
-  padding: 0.5rem 1rem;
-  border-radius: 0.3rem;
-}
-.noProjectLoad .link {
-  margin-top: 0.5rem;
-}
-@media screen and (min-width: 700px) {
-  .loadProjects .list {
-    width: 500px;
-    box-sizing: border-box;
-    line-height: 2rem;
-  }
+.sorter label {
+  margin-right: 1rem;
 }
 </style>
