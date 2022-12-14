@@ -40,7 +40,7 @@ const navButtons = useNavButton()
 const { userId, userName, userPhotoUrl, isLoggedIn } = storeToRefs(useAuthState())
 const getMonth = new Date().getMonth()
 const getYear = new Date().getFullYear()
-const nanoId = customAlphabet('1234567890abcdef', 5)
+const nanoId = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 6)
 const generateId = `${nanoId()}${getMonth}${getYear}`
 const projectId = route.params.id ? route.params.id : generateId
 
