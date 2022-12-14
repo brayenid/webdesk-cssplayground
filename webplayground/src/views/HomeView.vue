@@ -104,7 +104,7 @@ onUnmounted(() => {
       </select>
     </div>
     <Teleport to="body">
-      <LoadModal v-show="isShowModalLoad" :data="projectByUserId" :is-any-project="isAnyProject" title="Load Your Projects" />
+      <LoadModal v-show="isShowModalLoad" :data="projectByUserId" :is-any-project="isAnyProject" title="Load Your Projects :" />
     </Teleport>
     <div v-show="isLoading" class="loading">
       <EyesLoading />
