@@ -32,7 +32,7 @@ const javascript = (code) => highlight(code, languages.js)
 //elements
 const codeAreaEl = ref(null)
 const codePaneEl = ref(null)
-const htmlViewerEl = ref(null)
+const codeViewerEl = ref(null)
 
 const projectInfo = useProjectInfo()
 const navButtons = useNavButton()
@@ -98,7 +98,14 @@ const codeSaver = () => {
   }
 }
 const codeRunner = () => {
-  const viewer = htmlViewerEl.value.contentWindow.document
+  //Iframe is not allowed to 'resetting' its value, so i create iframe element on JS, so i can easily reset the container value to ''
+  const codeViewer = codeViewerEl.value
+  codeViewer.innerHTML = ''
+  const makeIframeEl = document.createElement('iframe')
+  makeIframeEl.setAttribute('id', 'htmlViewer')
+  makeIframeEl.setAttribute('sandbox', 'allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-presentation')
+  codeViewer.append(makeIframeEl)
+  const viewer = makeIframeEl.contentWindow.document
   viewer.open()
   viewer.write(`<style>${cssCode.value}</style>${htmlCode.value}<script>${jsCode.value}<\/script>`)
   viewer.close()
@@ -258,9 +265,7 @@ onUnmounted(() => {
           <PrismEditor class="editorField" v-model="jsCode" :highlight="javascript" line-numbers></PrismEditor>
         </div>
       </div>
-      <div class="codeViewer">
-        <iframe ref="htmlViewerEl" id="htmlViewer" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation allow-downloads allow-presentation"></iframe>
-      </div>
+      <div class="codeViewer" ref="codeViewerEl"></div>
     </div>
   </main>
 </template>
@@ -293,10 +298,6 @@ h3 {
 .codeViewer {
   background-color: #fff;
   width: 100%;
-}
-iframe {
-  width: 100%;
-  height: 100%;
 }
 .htmlArea,
 .cssArea,
